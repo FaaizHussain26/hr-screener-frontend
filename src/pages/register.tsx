@@ -24,9 +24,14 @@ const registerSchema = z
   .object({
     firstName: z
       .string()
-      .min(2, "Full name must be at least 2 characters")
-      .max(15, "Full name must be less than 15 characters")
-      .regex(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
+      .min(2, "First name must be at least 2 characters")
+      .max(15, "First name must be less than 15 characters")
+      .regex(/^[a-zA-Z\s]+$/, "First name can only contain letters and spaces"),
+    lastName: z
+      .string()
+      .min(2, "Last name must be at least 2 characters")
+      .max(15, "Last name must be less than 15 characters")
+      .regex(/^[a-zA-Z\s]+$/, "Last name can only contain letters and spaces"),
     email: z
       .string()
       .email("Please enter a valid email address")
@@ -70,6 +75,7 @@ export default function RegisterPage() {
 
       console.log("Registration data:", {
         firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         password: data.password,
         confirmPassword: data.confirmPassword,
@@ -99,23 +105,44 @@ export default function RegisterPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Full Name */}
-            <div className="space-y-2">
-              <Label htmlFor="firstName">Full Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="firstName"
-                  type="text"
-                  placeholder="John"
-                  className="pl-10 bg-white placeholder:text-sm"
-                  {...register("firstName")}
-                />
+            <div className="flex gap-x-4">
+              <div className="space-y-2 ">
+                <Label htmlFor="firstName">First Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="John"
+                    className="pl-10 bg-white placeholder:text-sm"
+                    {...register("firstName")}
+                  />
+                </div>
+                {errors.firstName && (
+                  <p className="text-sm text-red-600">
+                    {errors.firstName.message}
+                  </p>
+                )}
               </div>
-              {errors.firstName && (
-                <p className="text-sm text-red-600">
-                  {errors.firstName.message}
-                </p>
-              )}
+
+              <div className="space-y-2 ">
+                <Label htmlFor="lasttName">Last Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Smith"
+                    className="pl-10 bg-white placeholder:text-sm"
+                    {...register("lastName")}
+                  />
+                </div>
+                {errors.lastName && (
+                  <p className="text-sm text-red-600">
+                    {errors.lastName.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Email */}
