@@ -11,6 +11,7 @@ import RegisterPage from "./register";
 import AuthMiddleware from "@/components/AuthMiddleware";
 import { ForgotPassword } from "./forgot-password";
 import { ResetPassword } from "./reset-password";
+import { SettingsPage } from "./settings";
 
 export default function Main() {
   return (
@@ -40,6 +41,7 @@ export default function Main() {
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="agents/:id" element={<AgentDetailsPage />} />
         <Route path="users" element={<UsersPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
     </Routes>
   );

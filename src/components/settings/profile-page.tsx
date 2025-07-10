@@ -1,0 +1,369 @@
+"use client";
+
+import type React from "react";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Camera,
+  Trash2,
+  User,
+  Mail,
+  Phone,
+  Save,
+  Settings,
+  Lock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
+import { UpdatePasswordForm } from "./update-password-form";
+
+// Zod validation schema
+const profileSchema = z.object({
+  firstName: z
+    .string()
+    .min(2, "First name must be at least 2 characters")
+    .max(50, "First name must be less than 50 characters"),
+  lastName: z
+    .string()
+    .min(2, "Last name must be at least 2 characters")
+    .max(50, "Last name must be less than 50 characters"),
+  email: z
+    .string()
+    .email("Please enter a valid email address")
+    .min(1, "Email is required"),
+  phone: z
+    .string()
+    .regex(/^[+]?[1-9][\d]{0,15}$/, "Please enter a valid phone number")
+    .min(10, "Phone number must be at least 10 digits"),
+});
+
+type ProfileFormData = z.infer<typeof profileSchema>;
+
+interface ProfilePageProps {
+  initialData?: Partial<ProfileFormData & { profileImage?: string }>;
+}
+
+const sidebarItems = [
+  {
+    id: "profile",
+    label: "My Profile",
+    icon: User,
+  },
+  {
+    id: "password",
+    label: "Update Password",
+    icon: Lock,
+  },
+];
+
+export function ProfilePage({ initialData }: ProfilePageProps) {
+  const [profileImage, setProfileImage] = useState<string | null>(
+    initialData?.profileImage || null
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"profile" | "password">("profile");
+
+  const form = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      firstName: initialData?.firstName || "",
+      lastName: initialData?.lastName || "",
+      email: initialData?.email || "",
+      phone: initialData?.phone || "",
+    },
+  });
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast("Invalid file type", {
+          description: "Please select an image file",
+        });
+        return;
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast("File too large", {
+          description: "Please select an image smaller than 5MB",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setProfileImage(null);
+    // Reset the file input
+    const fileInput = document.getElementById(
+      "profile-image"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
+  const onSubmit = async (data: ProfileFormData) => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      console.log("Profile data:", { ...data, profileImage });
+
+      toast("Profile updated", {
+        description: "Your profile has been successfully updated.",
+      });
+      return;
+    } catch {
+      toast("Error", {
+        description: "Failed to update profile. Please try again.",
+      });
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getInitials = () => {
+    const firstName = form.watch("firstName");
+    const lastName = form.watch("lastName");
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  const renderProfileContent = () => (
+    <div className="space-y-6">
+      {/* Personal Information Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">
+            Personal Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        First Name
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <Input
+                            placeholder="Enter your first name"
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Last Name
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <Input
+                            placeholder="Enter your last name"
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Email Address
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          type="email"
+                          placeholder="Enter your email address"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Phone Number
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          type="tel"
+                          placeholder="Enter your phone number"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-4 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => form.reset()}
+                  disabled={isLoading}
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-card-box hover:bg-black"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2 " />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const renderPasswordContent = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">Update Password</CardTitle>
+        <p className="text-sm text-gray-600">
+          Update your password to keep your account secure
+        </p>
+      </CardHeader>
+      <CardContent>
+        <UpdatePasswordForm />
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="flex flex-1 gap-6 p-5 bg-white rounded-lg h-full p ">
+      {/* Left Sidebar */}
+      <div className="w-70 shadow-none ">
+        <Card className="h-full flex flex-col">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <nav className="space-y-1">
+              {sidebarItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() =>
+                      setActiveTab(item.id as "profile" | "password")
+                    }
+                    className={`w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${
+                      activeTab === item.id
+                        ? "bg-orange-50 text-orange-600 border-r-2 border-orange-500"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {activeTab === "profile" ? "My Profile" : "Update Password"}
+          </h1>
+          <p className="text-gray-600">
+            {activeTab === "profile"
+              ? "Manage your personal information and profile settings"
+              : "Update your password to keep your account secure"}
+          </p>
+        </div>
+
+        {activeTab === "profile"
+          ? renderProfileContent()
+          : renderPasswordContent()}
+      </div>
+    </div>
+  );
+}

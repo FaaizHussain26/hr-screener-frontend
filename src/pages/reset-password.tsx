@@ -1,40 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Link } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardHeader,
-  CardFooter,
   CardContent,
   CardDescription,
+  CardFooter,
+  CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Eye, EyeOff, Lock } from "lucide-react";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
+import {
+  ResetPasswordFormData,
+  resetPasswordSchema,
+} from "@/utils/validations/reset-password-schema";
 import React, { useState } from "react";
-
-const resetPasswordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type RegisterFormData = z.infer<typeof resetPasswordSchema>;
 
 export const ResetPassword: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -45,12 +30,12 @@ export const ResetPassword: React.FC = () => {
     reset,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterFormData>({
+  } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
     mode: "onChange",
   });
 
-  const onSubmit = async (data: RegisterFormData) => {
+  const onSubmit = async (data: ResetPasswordFormData) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 

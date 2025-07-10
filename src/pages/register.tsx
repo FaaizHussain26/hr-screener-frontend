@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useState } from "react";
 import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
 
@@ -19,38 +18,10 @@ import {
 } from "@/components/ui/card";
 import { Alert } from "@/components/alert";
 import { AlertDescription } from "@/components/alert-description";
-
-const registerSchema = z
-  .object({
-    firstName: z
-      .string()
-      .min(2, "First name must be at least 2 characters")
-      .max(15, "First name must be less than 15 characters")
-      .regex(/^[a-zA-Z\s]+$/, "First name can only contain letters and spaces"),
-    lastName: z
-      .string()
-      .min(2, "Last name must be at least 2 characters")
-      .max(15, "Last name must be less than 15 characters")
-      .regex(/^[a-zA-Z\s]+$/, "Last name can only contain letters and spaces"),
-    email: z
-      .string()
-      .email("Please enter a valid email address")
-      .min(1, "Email is required"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-    confirmPassword: z.string().min(1, "Please confirm your password"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type RegisterFormData = z.infer<typeof registerSchema>;
+import {
+  RegisterFormData,
+  registerSchema,
+} from "@/utils/validations/register-schema";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -132,7 +103,7 @@ export default function RegisterPage() {
                   <Input
                     id="lastName"
                     type="text"
-                    placeholder="Smith"
+                    placeholder="Doe"
                     className="pl-10 bg-white placeholder:text-sm"
                     {...register("lastName")}
                   />

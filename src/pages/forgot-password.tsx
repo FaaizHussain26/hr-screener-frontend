@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Mail } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -23,12 +22,10 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Enter a valid email"),
-});
-
-type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
+import {
+  ForgotPasswordData,
+  forgotPasswordSchema,
+} from "@/utils/validations/forget-password-schema";
 
 export const ForgotPassword: React.FC = () => {
   const form = useForm<ForgotPasswordData>({

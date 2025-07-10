@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Link, useNavigate } from "react-router";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,13 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-export type LoginFormData = z.infer<typeof loginSchema>;
+import { LoginFormData, loginSchema } from "@/utils/validations/login-schema";
 
 export default function LoginPage() {
   const navigate = useNavigate();
