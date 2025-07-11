@@ -10,9 +10,8 @@ const AuthMiddleware = ({ children }: Props) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const expiry = localStorage.getItem("tokenExpiry");
 
-    if (!token || !expiry || Date.now() > parseInt(expiry)) {
+    if (!token) {
       // Token expired or not present
       localStorage.removeItem("token");
       localStorage.removeItem("tokenExpiry");

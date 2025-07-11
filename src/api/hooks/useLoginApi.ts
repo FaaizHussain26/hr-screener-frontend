@@ -6,11 +6,7 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: async (payload: LoginFormData) => {
       const data = await loginApi(payload);
-
-      const expiry = Date.now() + 30 * 60 * 1000; // 30 minutes
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("tokenExpiry", expiry.toString());
-
+      localStorage.setItem("token", data.accessToken);
       return data;
     },
   });
