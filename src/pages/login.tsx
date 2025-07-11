@@ -87,10 +87,6 @@ export default function LoginPage() {
       const result = await response.json();
 
       if (result.accessToken) {
-        const expiry = Date.now() + 30 * 60 * 1000;
-        localStorage.setItem("token", result.accessToken);
-        localStorage.setItem("tokenExpiry", expiry.toString());
-
         setMessage("Login successful!");
         setMessageType("success");
 
