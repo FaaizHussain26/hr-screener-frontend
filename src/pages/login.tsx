@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router"; // FIXED
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { API_BASE_URL } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +22,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
 import { LoginFormData, loginSchema } from "@/utils/validations/login-schema";
+import { useLoginMutation } from "@/api/hooks/useLoginApi";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -41,14 +42,18 @@ export default function LoginPage() {
     },
   });
 
+  const { mutate, isPending } = useLoginMutation();
+
+  // Redirect if token is valid
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
     const expiry = localStorage.getItem("tokenExpiry");
     if (token && expiry && Date.now() < parseInt(expiry)) {
       navigate("/dashboard", { replace: true });
     }
   }, [navigate]);
 
+  // Clear message on form field change
   useEffect(() => {
     const subscription = form.watch(() => {
       if (message) {
@@ -59,49 +64,20 @@ export default function LoginPage() {
     return () => subscription.unsubscribe();
   }, [form, message]);
 
-  const onSubmit = async (data: LoginFormData) => {
-    setMessage(null);
-    setMessageType(null);
-
-    try {
-      if (data.email === "demo@example.com" && data.password === "demo123") {
-        const expiry = Date.now() + 30 * 60 * 1000; // 30 min
-        localStorage.setItem("token", "demo-token");
-        localStorage.setItem("tokenExpiry", expiry.toString());
-
+  const onSubmit = (formData: LoginFormData) => {
+    mutate(formData, {
+      onSuccess: (response) => {
+        console.log("Login successful:", response);
         setMessage("Login successful!");
         setMessageType("success");
-
-        setTimeout(() => navigate("/dashboard/home", { replace: true }), 1000);
-        return;
-      }
-
-      const response = await fetch(`${API_BASE_URL}/auth/signin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) throw new Error("Invalid credentials");
-
-      const result = await response.json();
-
-      if (result.accessToken) {
-        const expiry = Date.now() + 30 * 60 * 1000;
-        localStorage.setItem("token", result.accessToken);
-        localStorage.setItem("tokenExpiry", expiry.toString());
-
-        setMessage("Login successful!");
-        setMessageType("success");
-
-        setTimeout(() => navigate("/dashboard/home", { replace: true }), 1000);
-      } else {
-        throw new Error("Login failed");
-      }
-    } catch {
-      setMessage("Login failed. Please check your credentials.");
-      setMessageType("error");
-    }
+        navigate("/dashboard");
+      },
+      onError: (err: unknown) => {
+        console.error("Login failed", err);
+        setMessage("Login failed. Please check your credentials.");
+        setMessageType("error");
+      },
+    });
   };
 
   return (
@@ -182,7 +158,7 @@ export default function LoginPage() {
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0  hover:text-gray-600 hover:bg-transparent"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:text-gray-600 hover:bg-transparent"
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           {showPassword ? (
@@ -199,8 +175,12 @@ export default function LoginPage() {
               />
 
               {/* Submit */}
-              <Button type="submit" className="w-full mt-6 bg-card-box">
-                Sign In
+              <Button
+                type="submit"
+                className="w-full mt-6 bg-card-box"
+                disabled={isPending}
+              >
+                {isPending ? "Logging in..." : "Login"}
               </Button>
             </form>
           </Form>

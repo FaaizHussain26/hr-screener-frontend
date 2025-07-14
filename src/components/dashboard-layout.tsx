@@ -37,6 +37,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useCallback } from "react";
 
 const data = {
   user: {
@@ -101,13 +102,26 @@ export function DashboardLayout() {
     return "Welcome to AI Agent Dashboard";
   };
 
+  const handleLogout = useCallback(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      localStorage.removeItem("token");
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+
   return (
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg"className="flex items-center justify-center pointer-events-none"   asChild>
+              <SidebarMenuButton
+                size="lg"
+                className="flex items-center justify-center pointer-events-none"
+                asChild
+              >
                 <button
                   onClick={() => handleNavigation("/dashboard")}
                   className="flex items-center gap-2 w-full"
@@ -190,11 +204,12 @@ export function DashboardLayout() {
                   >
                     <Avatar className="h-10 w-10 rounded-full ">
                       <AvatarImage
-                      
                         src={data.user.avatar || "/placeholder.svg"}
                         alt={data.user.name}
                       />
-                      <AvatarFallback className="rounded-lg bg-card-box">AJ</AvatarFallback>
+                      <AvatarFallback className="rounded-lg bg-card-box">
+                        AJ
+                      </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight ">
                       <span className="truncate font-semibold">
@@ -273,11 +288,20 @@ export function DashboardLayout() {
                 New Agent
               </Button>
               <div className="bg-sidebar-accent-foreground rounded-full">
-             <Button variant="ghost" size="sm" >
-                <Bell fill="currentColor" className="size-5 text-card-box"  />
-              </Button>
+                <Button variant="ghost" size="sm">
+                  <Bell fill="currentColor" className="size-5 text-card-box" />
+                </Button>
               </div>
-             
+              <div className="bg-sidebar-accent-foreground rounded-full">
+                <Button
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
         </header>

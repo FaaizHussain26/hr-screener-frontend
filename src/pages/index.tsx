@@ -1,26 +1,55 @@
+import ChatWidget from "@/components/chatbot/chat-widget";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import AuthMiddleware from "@/components/middleware/auth-middleware";
+import GuestMiddleware from "@/components/middleware/guest-middleware";
 import { Route, Routes } from "react-router";
 import { AgentDetailsPage } from "./agent-details";
 import { AgentsPage } from "./agents";
 import { AnalyticsPage } from "./analytics";
 import { DashboardPage } from "./dashboard";
-import { UsersPage } from "./users";
-import ChatWidget from "@/components/chatbot/chat-widget";
+import { ForgotPassword } from "./forgot-password";
 import LoginPage from "./login";
 import RegisterPage from "./register";
-import AuthMiddleware from "@/components/AuthMiddleware";
-import { ForgotPassword } from "./forgot-password";
 import { ResetPassword } from "./reset-password";
 import { SettingsPage } from "./settings";
+import { UsersPage } from "./users";
 
 export default function Main() {
   return (
     <Routes>
       <Route path="/" element={<ChatWidget />} />
-      <Route path="login" element={<LoginPage />} />
-      <Route path="forgot-password" element={<ForgotPassword />} />
-      <Route path="reset-password" element={<ResetPassword />} />
-      <Route path="register" element={<RegisterPage />} />
+      <Route
+        path="login"
+        element={
+          <GuestMiddleware>
+            <LoginPage />
+          </GuestMiddleware>
+        }
+      />
+      <Route
+        path="forgot-password"
+        element={
+          <GuestMiddleware>
+            <ForgotPassword />
+          </GuestMiddleware>
+        }
+      />
+      <Route
+        path="reset-password"
+        element={
+          <GuestMiddleware>
+            <ResetPassword />
+          </GuestMiddleware>
+        }
+      />
+      <Route
+        path="register"
+        element={
+          <GuestMiddleware>
+            <RegisterPage />
+          </GuestMiddleware>
+        }
+      />
       <Route
         path="dashboard"
         element={
