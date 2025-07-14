@@ -1,4 +1,5 @@
-import { LoginFormData } from "@/pages/login";
+
+import { LoginFormData } from "@/utils/validations/login-schema";
 import axios from "axios";
 
 export const LoginInputData = (data: LoginFormData) => {

@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 
 function App() {
   return (
+    
     <BrowserRouter>
       <ThemeProvider defaultTheme="light" storageKey="scitech-theme">
         <Main />
