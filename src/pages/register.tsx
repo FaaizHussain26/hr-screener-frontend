@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
@@ -22,12 +22,13 @@ import {
   RegisterFormData,
   registerSchema,
 } from "@/utils/validations/register-schema";
+import { useRegister } from "@/api/hooks/useRegister";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+ const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -38,28 +39,29 @@ export default function RegisterPage() {
     mode: "onChange",
   });
 
-  const onSubmit = async (data: RegisterFormData) => {
-    setIsSubmitting(true);
+    const { mutate, isPending } = useRegister();
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+  const onSubmit = (data: RegisterFormData) => {
+    mutate(data, {
+      onSuccess: (res) => {
+        toast(res.message, {
+        });
+        reset();
+        setTimeout(() => {
+        navigate("/login"); }, 1500);
+  
+      },
+      onError: (error: any) => {
+       const apiErrorMessage =
+      error.response?.data?.message || "Something went wrong. Try again.";
+      toast("Error Occur", {
+          description:apiErrorMessage,
+        });
 
-      console.log("Registration data:", {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-      });
-
-      reset();
-      alert("Registration successful!");
-    } catch (error) {
-      console.error("Registration failed:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+      },
+    });
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
@@ -204,9 +206,9 @@ export default function RegisterPage() {
             <Button
               type="submit"
               className="w-full mt-6 bg-card-box cursor-pointer"
-              disabled={isSubmitting}
+              disabled={isPending}
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isPending ? "Creating account..." : "Create account"}
             </Button>
           </form>
 

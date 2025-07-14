@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link ,useNavigate,useSearchParams  } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,10 +20,16 @@ import {
   resetPasswordSchema,
 } from "@/utils/validations/reset-password-schema";
 import React, { useState } from "react";
+import { toast } from "sonner";
+import { useResetPasseord } from "@/api/hooks/useResetPassword";
 
 export const ResetPassword: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const navigate = useNavigate();
+
+const [searchParams] = useSearchParams();
+const token = searchParams.get("token");
 
   const {
     register,
@@ -35,16 +41,37 @@ export const ResetPassword: React.FC = () => {
     mode: "onChange",
   });
 
-  const onSubmit = async (data: ResetPasswordFormData) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      console.log("Reset data:", data);
-      reset();
-      alert("Password reset successful");
-    } catch (error) {
-      console.error("Password reset failed:", error);
-    }
+  
+  const { mutate, isPending } = useResetPasseord();
+  const onSubmit = async (data: ResetPasswordFormData) => {
+ console.log(token)
+
+     if (!token) {
+    toast("Invalid or missing token", {
+      description: "The reset token is missing from the URL.",
+    });
+    return;
+  }
+
+    const payload = {...data, token };
+    mutate(payload, {
+      onSuccess: (res) => {
+        toast(res.message, {
+        });
+        reset();
+        setTimeout(() => {
+        navigate("/login"); }, 1500);
+      },
+      onError: (error: any) => {
+       const apiErrorMessage =
+      error.response?.data?.message || "Something went wrong. Try again.";
+      toast("Error Occur", {
+          description:apiErrorMessage,
+        });
+
+      },
+    });
   };
 
   return (
@@ -71,7 +98,7 @@ export const ResetPassword: React.FC = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className="pl-10 pr-10 bg-white placeholder:text-sm"
-                  {...register("password")}
+                  {...register("newpassword")}
                 />
                 <button
                   type="button"
@@ -81,9 +108,9 @@ export const ResetPassword: React.FC = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {errors.password && (
+              {errors.newpassword && (
                 <p className="text-sm text-red-600">
-                  {errors.password.message}
+                  {errors.newpassword.message}
                 </p>
               )}
             </div>
@@ -119,8 +146,10 @@ export const ResetPassword: React.FC = () => {
               )}
             </div>
 
-            <Button type="submit" className="w-full mt-6 bg-card-box">
-              Reset Password
+            <Button type="submit" className="w-full mt-6 bg-card-box" disabled={isPending}
+            >
+              {isPending ? "Reset Password..." : "Reset Password"}
+              
             </Button>
           </form>
         </CardContent>
