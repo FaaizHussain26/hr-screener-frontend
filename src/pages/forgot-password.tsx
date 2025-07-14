@@ -26,6 +26,8 @@ import {
   ForgotPasswordData,
   forgotPasswordSchema,
 } from "@/utils/validations/forget-password-schema";
+import { toast } from "sonner";
+import { useForgotPassword } from "@/api/hooks/useForgetPassword";
 
 export const ForgotPassword: React.FC = () => {
   const form = useForm<ForgotPasswordData>({
@@ -35,17 +37,23 @@ export const ForgotPassword: React.FC = () => {
     },
   });
 
-  const onSubmit = async (data: ForgotPasswordData) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      console.log("Reset data:", data);
-      form.reset();
-      alert("Email sent successfully");
-    } catch (error) {
-      console.error("Password reset failed:", error);
-      alert("Something went wrong. Please try again later.");
-    }
+  const {mutate, isPending} = useForgotPassword();
+  const onSubmit = async (data: ForgotPasswordData) => {
+   mutate(data, {
+      onSuccess: (res) => {
+        toast(res.message, {
+        });
+      },
+      onError: (error: any) => {
+       const apiErrorMessage =
+      error.response?.data?.message || "Something went wrong. Try again.";
+      toast("Error Occur", {
+          description:apiErrorMessage,
+        });
+
+      },
+    });
   };
 
   return (
@@ -90,8 +98,11 @@ export const ForgotPassword: React.FC = () => {
               <Button
                 type="submit"
                 className="w-full mt-6 bg-card-box cursor-pointer"
-              >
-                Send Mail
+                 disabled={isPending}
+            >
+              {isPending ? "Send Mail..." : "Send Mail"}
+              
+                
               </Button>
             </form>
           </Form>
