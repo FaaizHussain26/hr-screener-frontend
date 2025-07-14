@@ -9,8 +9,6 @@ const GuestMiddleware = ({ children }: Props) => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  console.log(token);
-
   useEffect(() => {
     if (token) {
       navigate("/dashboard/home", { replace: true });
