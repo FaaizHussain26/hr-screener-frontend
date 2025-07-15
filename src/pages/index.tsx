@@ -4,7 +4,7 @@ import AuthMiddleware from "@/components/middleware/auth-middleware";
 import GuestMiddleware from "@/components/middleware/guest-middleware";
 import { Route, Routes } from "react-router";
 import { AgentDetailsPage } from "./agent-details";
-import { AgentsPage } from "./agents";
+import { AgentsPage } from "./shortlist-candidate";
 import { AnalyticsPage } from "./analytics";
 import { DashboardPage } from "./dashboard";
 import { ForgotPassword } from "./forgot-password";
@@ -66,7 +66,7 @@ export default function Main() {
             </AuthMiddleware>
           }
         />
-        <Route path="agents" element={<AgentsPage />} />
+        <Route path="shortlist-candidates" element={<AgentsPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="agents/:id" element={<AgentDetailsPage />} />
         <Route path="users" element={<UsersPage />} />
