@@ -164,7 +164,7 @@ export default function LoginPage() {
                           {showPassword ? (
                             <EyeOff size={18} />
                           ) : (
-                            <Eye size={18} />C
+                            <Eye size={18} />
                           )}
                         </Button>
                       </div>
