@@ -7,6 +7,8 @@ const initialProfileData = {
   email: "john.doe@example.com",
   phone: "+1234567890",
   profileImage: "/placeholder.svg?height=128&width=128",
+  address: "Mr John Doe. 132 My Street, Kingston, New York 12401.",
+  isActive: true,
 };
 
 export function SettingsPage() {

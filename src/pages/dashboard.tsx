@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/table";
 import { useCallback } from "react";
 import DashboardCard from "@/components/dashboard-card";
+import { dashboardData } from "@/utils/Content-Data/dashboard-data";
 
 const data = {
   agents: [
@@ -80,25 +81,25 @@ const data = {
   ],
   stats: [
     {
-      title: "Total Agents",
+      title: dashboardData.cards.cardOne,
       value: "24",
       change: "2",
       icon: Bot,
     },
     {
-      title: "Active Requests",
+      title: dashboardData.cards.cardTwo,
       value: "2,847",
       change: "3",
       icon: Activity,
     },
     {
-      title: "Response Time",
+      title: dashboardData.cards.cardThree,
       value: "1.2s",
       change: "4",
       icon: Clock,
     },
     {
-      title: "Success Rate",
+      title: dashboardData.cards.cardFour,
       value: "94.2%",
       change: "5",
       icon: Zap,
@@ -136,7 +137,9 @@ export function DashboardPage() {
         <CardHeader>
           <div className="flex items-center justify-between -mb-6">
             <div>
-              <CardTitle className="font-bold">Recent AI Agents</CardTitle>
+              <CardTitle className="font-bold">
+                {dashboardData.tableHeading}
+              </CardTitle>
             </div>
             <Button
               className="flex items-center gap-0.5 text-sm bg-orange-100 rounded-full"
@@ -153,14 +156,16 @@ export function DashboardPage() {
           <Table className="[&_tr]:border-b-gray-100 [&_tr:last-child]:border-b-0">
             <TableHeader className="[&_tr]:border-b-gray-100">
               <TableRow className="hover:bg-transparent border-b-gray-100">
-                <TableHead className="pl-0">Agent</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Model</TableHead>
-                <TableHead>Requests</TableHead>
-                <TableHead>Accuracy</TableHead>
-                <TableHead>Last Active</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="pl-0">
+                  {dashboardData.tableColumn.columnOne}
+                </TableHead>
+                <TableHead>{dashboardData.tableColumn.columnTwo}</TableHead>
+                <TableHead>{dashboardData.tableColumn.columnThree}</TableHead>
+                <TableHead>{dashboardData.tableColumn.columnFour}</TableHead>
+                <TableHead>{dashboardData.tableColumn.columnFive}</TableHead>
+                <TableHead>{dashboardData.tableColumn.columnSix}</TableHead>
+                <TableHead>{dashboardData.tableColumn.columnSeven}</TableHead>
+                <TableHead>{dashboardData.tableColumn.columnEight}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

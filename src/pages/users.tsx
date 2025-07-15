@@ -25,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { usersData } from "@/utils/Content-Data/users-data";
 
 const users = [
   {
@@ -64,21 +65,23 @@ export function UsersPage() {
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Users</h2>
-          <p className="text-muted-foreground">
-            Manage user access and permissions
-          </p>
+          <h2 className="text-2xl font-bold tracking-tight">
+            {usersData.heading}
+          </h2>
+          <p className="text-muted-foreground">{usersData.subHeading}</p>
         </div>
         <Button>
           <UserPlus className="mr-2 h-4 w-4" />
-          Invite User
+          {usersData.button}
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {usersData.cards.cardOne}
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -88,7 +91,9 @@ export function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {usersData.cards.cardTwo}
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -100,7 +105,9 @@ export function UsersPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Admins</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {usersData.cards.cardThree}
+            </CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -116,21 +123,21 @@ export function UsersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Team Members</CardTitle>
-          <CardDescription>
-            Manage your team members and their permissions
-          </CardDescription>
+          <CardTitle>{usersData.tableHeading}</CardTitle>
+          <CardDescription>{usersData.tableSubheading}</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Active</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{usersData.tableColumn.tableColumnOne}</TableHead>
+                <TableHead>{usersData.tableColumn.tableColumnTwo}</TableHead>
+                <TableHead>{usersData.tableColumn.tableColumnThree}</TableHead>
+                <TableHead>{usersData.tableColumn.tableColumnFour}</TableHead>
+                <TableHead>{usersData.tableColumn.tableColumnFive}</TableHead>
+                <TableHead className="text-right">
+                  {usersData.tableColumn.tableColumnSix}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
