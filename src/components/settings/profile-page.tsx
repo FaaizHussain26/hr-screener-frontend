@@ -2,24 +2,8 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import {
-  Camera,
-  Trash2,
-  User,
-  Mail,
-  Phone,
-  Save,
-  Settings,
-  Lock,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -28,8 +12,23 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Home,
+  Lock,
+  Mail,
+  Phone,
+  Save,
+  Settings,
+  // Camera,
+  // Trash2,
+  User,
+} from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import * as z from "zod";
 import { UpdatePasswordForm } from "./update-password-form";
 
 // Zod validation schema
@@ -50,6 +49,8 @@ const profileSchema = z.object({
     .string()
     .regex(/^[+]?[1-9][\d]{0,15}$/, "Please enter a valid phone number")
     .min(10, "Phone number must be at least 10 digits"),
+  address: z.string(),
+  isActive: z.boolean(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -72,9 +73,9 @@ const sidebarItems = [
 ];
 
 export function ProfilePage({ initialData }: ProfilePageProps) {
-  const [profileImage, setProfileImage] = useState<string | null>(
-    initialData?.profileImage || null
-  );
+  // const [profileImage, setProfileImage] = useState<string | null>(
+  //   initialData?.profileImage || null
+  // );
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "password">("profile");
 
@@ -85,46 +86,48 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
       lastName: initialData?.lastName || "",
       email: initialData?.email || "",
       phone: initialData?.phone || "",
+      address: initialData?.address || "",
+      isActive: initialData?.isActive ?? false,
     },
   });
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast("Invalid file type", {
-          description: "Please select an image file",
-        });
-        return;
-      }
+  // const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     // Validate file type
+  //     if (!file.type.startsWith("image/")) {
+  //       toast("Invalid file type", {
+  //         description: "Please select an image file",
+  //       });
+  //       return;
+  //     }
 
-      // Validate file size (5MB limit)
-      if (file.size > 5 * 1024 * 1024) {
-        toast("File too large", {
-          description: "Please select an image smaller than 5MB",
-        });
-        return;
-      }
+  //     // Validate file size (5MB limit)
+  //     if (file.size > 5 * 1024 * 1024) {
+  //       toast("File too large", {
+  //         description: "Please select an image smaller than 5MB",
+  //       });
+  //       return;
+  //     }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       setProfileImage(e.target?.result as string);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
-  const handleRemoveImage = () => {
-    setProfileImage(null);
-    // Reset the file input
-    const fileInput = document.getElementById(
-      "profile-image"
-    ) as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = "";
-    }
-  };
+  // const handleRemoveImage = () => {
+  //   setProfileImage(null);
+  //   // Reset the file input
+  //   const fileInput = document.getElementById(
+  //     "profile-image"
+  //   ) as HTMLInputElement;
+  //   if (fileInput) {
+  //     fileInput.value = "";
+  //   }
+  // };
 
   const onSubmit = async (data: ProfileFormData) => {
     setIsLoading(true);
@@ -132,7 +135,8 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      console.log("Profile data:", { ...data, profileImage });
+      // console.log("Profile data:", { ...data, profileImage });
+      console.log("Profile data:", { ...data });
 
       toast("Profile updated", {
         description: "Your profile has been successfully updated.",
@@ -148,11 +152,11 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
     }
   };
 
-  const getInitials = () => {
-    const firstName = form.watch("firstName");
-    const lastName = form.watch("lastName");
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
+  // const getInitials = () => {
+  //   const firstName = form.watch("firstName");
+  //   const lastName = form.watch("lastName");
+  //   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  // };
 
   const renderProfileContent = () => (
     <div className="space-y-6">
@@ -262,15 +266,72 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Address
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          type="tel"
+                          placeholder="Enter your Address"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between">
+                    <div>
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        Status
+                      </FormLabel>
+                      <p className="text-xs text-gray-500">
+                        Toggle to set as Active or Inactive
+                      </p>
+                    </div>
+                    <FormControl>
+                      <button
+                        type="button"
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                          field.value ? "bg-green-500" : "bg-gray-300"
+                        }`}
+                        onClick={() => field.onChange(!field.value)}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            field.value ? "translate-x-6" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="flex justify-end space-x-4 pt-4">
-                <Button
+                {/* <Button
                   type="button"
                   variant="outline"
                   onClick={() => form.reset()}
                   disabled={isLoading}
                 >
                   Reset
-                </Button>
+                </Button> */}
                 <Button
                   type="submit"
                   disabled={isLoading}

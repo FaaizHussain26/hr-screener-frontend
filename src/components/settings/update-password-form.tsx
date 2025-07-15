@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 // Zod validation schema for password update
 const passwordSchema = z
@@ -74,6 +75,8 @@ export function UpdatePasswordForm() {
       setIsLoading(false);
     }
   };
+
+  const navigate = useNavigate();
 
   return (
     <Form {...form}>
@@ -197,7 +200,10 @@ export function UpdatePasswordForm() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => form.reset()}
+            onClick={() => {
+              form.reset();
+              navigate("/dashboard/home");
+            }}
             disabled={isLoading}
           >
             Cancel

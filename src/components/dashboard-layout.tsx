@@ -1,7 +1,6 @@
 import { Outlet, useLocation, useNavigate } from "react-router";
 import {
   Bot,
-  Brain,
   Settings,
   Users,
   BarChart3,
@@ -38,6 +37,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useCallback } from "react";
+import { dashboardLayout } from "@/utils/Content-Data/dashboard-layout-data";
 
 const data = {
   user: {
@@ -47,27 +47,27 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: dashboardLayout.sideBar.sideBarOne,
       url: "/dashboard/home",
       icon: BarChart3,
     },
     {
-      title: "AI Agents",
+      title: dashboardLayout.sideBar.sideBarTwo,
       url: "/dashboard/agents",
       icon: Bot,
     },
     {
-      title: "Analytics",
+      title: dashboardLayout.sideBar.sideBarThree,
       url: "/dashboard/analytics",
       icon: BarChart3,
     },
     {
-      title: "Users",
+      title: dashboardLayout.sideBar.sideBarFour,
       url: "/dashboard/users",
       icon: Users,
     },
     {
-      title: "Settings",
+      title: dashboardLayout.sideBar.sideBarFive,
       url: "/dashboard/settings",
       icon: Settings,
     },
@@ -99,7 +99,7 @@ export function DashboardLayout() {
     if (path.startsWith("/analytics")) return "Analytics";
     if (path.startsWith("/users")) return "Users";
     if (path.startsWith("/settings")) return "Settings";
-    return "Welcome to AI Agent Dashboard";
+    return dashboardLayout.header.heading;
   };
 
   const handleLogout = useCallback(() => {
@@ -126,8 +126,8 @@ export function DashboardLayout() {
                   onClick={() => handleNavigation("/dashboard")}
                   className="flex items-center gap-2 w-full"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <Brain className="size-4" />
+                  <div className="flex aspect-square size-17 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground bg-transparent ">
+                    <img src={dashboardLayout.image} className=" " />
                   </div>
                   {/* <div className="flex flex-col gap-0.5 leading-none">
                     <span className="font-semibold">AI Agent Hub</span>
@@ -285,7 +285,7 @@ export function DashboardLayout() {
                 onClick={() => handleNavigation("/agents/create")}
               >
                 <Plus className="size-4 mr-2" />
-                New Agent
+                {dashboardLayout.header.headerAddButton}
               </Button>
               <div className="bg-sidebar-accent-foreground rounded-full">
                 <Button variant="ghost" size="sm">
