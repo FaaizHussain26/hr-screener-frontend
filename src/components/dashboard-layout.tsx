@@ -4,7 +4,6 @@ import {
   Settings,
   Users,
   BarChart3,
-  Plus,
   Bell,
   User,
   ChevronDown,
@@ -53,7 +52,7 @@ const data = {
     },
     {
       title: dashboardLayout.sideBar.sideBarTwo,
-      url: "/dashboard/agents",
+      url: "/dashboard/shortlist-candidates",
       icon: Bot,
     },
     {
@@ -93,9 +92,9 @@ export function DashboardLayout() {
     const path = location.pathname;
     if (path === "/dashboard") return "Dashboard";
     if (path.startsWith("/agents/create")) return "Create AI Agent";
-    if (path.startsWith("/agents/") && path !== "/agents")
-      return "Agent Details";
-    if (path.startsWith("/agents")) return "AI Agents";
+    if (path.startsWith("/agents/") && path !== "/shortlist-candidates")
+      return "Aplicant Details";
+    if (path.startsWith("/shortlist-candidates")) return "Applicants";
     if (path.startsWith("/analytics")) return "Analytics";
     if (path.startsWith("/users")) return "Users";
     if (path.startsWith("/settings")) return "Settings";
@@ -278,7 +277,7 @@ export function DashboardLayout() {
               <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
             </div>
             <div className="flex items-center gap-2">
-              <Button
+              {/* <Button
                 variant="outline"
                 size="lg"
                 className="bg-blue-900 text-white rounded-lg"
@@ -286,7 +285,7 @@ export function DashboardLayout() {
               >
                 <Plus className="size-4 mr-2" />
                 {dashboardLayout.header.headerAddButton}
-              </Button>
+              </Button> */}
               <div className="bg-sidebar-accent-foreground rounded-full">
                 <Button variant="ghost" size="sm">
                   <Bell fill="currentColor" className="size-5 text-card-box" />

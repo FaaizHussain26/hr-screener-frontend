@@ -1,12 +1,12 @@
 export const dashboardLayout = {
   header: {
-    heading: "Welcome to AI Agent Dashboard",
+    heading: "Welcome to HR Screen App",
     headerAddButton: "New Agent",
   },
   image: "https://www.w3.org/Icons/SVG/svg-logo-h.svg",
   sideBar: {
     sideBarOne: "Dashboard",
-    sideBarTwo: "AI Agents",
+    sideBarTwo: "Shortlist Candidates",
     sideBarThree: "Analytics",
     sideBarFour: "Users",
     sideBarFive: "Settings",
