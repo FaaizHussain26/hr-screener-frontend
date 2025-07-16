@@ -28,7 +28,7 @@ import { toast } from "sonner";
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
- const navigate = useNavigate();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -39,29 +39,24 @@ export default function RegisterPage() {
     mode: "onChange",
   });
 
-    const { mutate, isPending } = useRegister();
+  const { mutate, isPending } = useRegister();
 
   const onSubmit = (data: RegisterFormData) => {
     mutate(data, {
       onSuccess: (res) => {
-        toast(res.message, {
-        });
+        toast(res.message, {});
         reset();
         setTimeout(() => {
-        navigate("/login"); }, 1500);
-  
+          navigate("/login");
+        }, 1500);
       },
-      onError: (error: any) => {
-       const apiErrorMessage =
-      error.response?.data?.message || "Something went wrong. Try again.";
-      toast("Error Occur", {
-          description:apiErrorMessage,
+      onError: () => {
+        toast("Error Occur", {
+          description: "Something went wrong. Try again.",
         });
-
       },
     });
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
