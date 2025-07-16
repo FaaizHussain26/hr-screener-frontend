@@ -1,10 +1,8 @@
-import ChatWidget from "@/components/chatbot/chat-widget";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import AuthMiddleware from "@/components/middleware/auth-middleware";
 import GuestMiddleware from "@/components/middleware/guest-middleware";
 import { Route, Routes } from "react-router";
 import { AgentDetailsPage } from "./agent-details";
-import { AgentsPage } from "./shortlist-candidate";
 import { AnalyticsPage } from "./analytics";
 import { DashboardPage } from "./dashboard";
 import { ForgotPassword } from "./forgot-password";
@@ -12,12 +10,20 @@ import LoginPage from "./login";
 import RegisterPage from "./register";
 import { ResetPassword } from "./reset-password";
 import { SettingsPage } from "./settings";
+import { AgentsPage } from "./shortlist-candidate";
 import { UsersPage } from "./users";
 
 export default function Main() {
   return (
     <Routes>
-      <Route path="/" element={<ChatWidget />} />
+      <Route
+        path="/"
+        element={
+          <GuestMiddleware>
+            <LoginPage />
+          </GuestMiddleware>
+        }
+      />
       <Route
         path="login"
         element={
