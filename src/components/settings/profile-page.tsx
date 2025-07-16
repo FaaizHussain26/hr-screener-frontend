@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import * as z from "zod";
 import { UpdatePasswordForm } from "./update-password-form";
@@ -107,8 +106,6 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
       },
     });
   };
-
-  console.log(form.formState.errors);
 
   const renderProfileContent = () => (
     <div className="space-y-6">
