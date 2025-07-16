@@ -17,7 +17,7 @@ export const loginApi = async (
   data: LoginFormData
 ): Promise<LoginApiResponse> => {
   const response = await axios.post<LoginApiResponse>(
-    `${apiBaseUrl}/auth/signin`,
+    `${apiBaseUrl}/auth/login`,
     data
   );
   return response.data;

@@ -28,9 +28,12 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import { UpdatePasswordForm } from "./update-password-form";
+import { useUpdateProfile } from "@/api/hooks/useUpdateProfile";
+import { useNavigate } from "react-router";
 
 // Zod validation schema
 const profileSchema = z.object({
+  id: z.string(),
   firstName: z
     .string()
     .min(2, "First name must be at least 2 characters")
@@ -51,7 +54,7 @@ const profileSchema = z.object({
   isActive: z.boolean(),
 });
 
-type ProfileFormData = z.infer<typeof profileSchema>;
+export type ProfileFormData = z.infer<typeof profileSchema>;
 
 interface ProfilePageProps {
   initialData?: Partial<ProfileFormData & { profileImage?: string }>;
@@ -74,7 +77,6 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
   // const [profileImage, setProfileImage] = useState<string | null>(
   //   initialData?.profileImage || null
   // );
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "password">("profile");
 
   const form = useForm<ProfileFormData>({
@@ -127,27 +129,30 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
   //   }
   // };
 
+  const navigate = useNavigate();
+
+  const { reset } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    mode: "onChange",
+  });
+
+  const { mutate, isPending } = useUpdateProfile();
+
   const onSubmit = async (data: ProfileFormData) => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // console.log("Profile data:", { ...data, profileImage });
-      console.log("Profile data:", { ...data });
-
-      toast("Profile updated", {
-        description: "Your profile has been successfully updated.",
-      });
-      return;
-    } catch {
-      toast("Error", {
-        description: "Failed to update profile. Please try again.",
-      });
-      return;
-    } finally {
-      setIsLoading(false);
-    }
+    mutate(data, {
+      onSuccess: (res) => {
+        toast(res.message, {});
+        reset();
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+      },
+      onError: () => {
+        toast("Error Occur", {
+          description: "Something went wrong. Try again.",
+        });
+      },
+    });
   };
 
   // const getInitials = () => {
@@ -332,10 +337,10 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
                 </Button> */}
                 <Button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isPending}
                   className="bg-card-box hover:bg-black"
                 >
-                  {isLoading ? (
+                  {isPending ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                       Saving...

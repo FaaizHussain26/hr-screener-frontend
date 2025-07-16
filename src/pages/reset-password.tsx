@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link ,useNavigate,useSearchParams  } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,15 +21,15 @@ import {
 } from "@/utils/validations/reset-password-schema";
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { useResetPasseord } from "@/api/hooks/useResetPassword";
+import { useResetPassword } from "@/api/hooks/useResetPassword";
 
 export const ResetPassword: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const [searchParams] = useSearchParams();
-const token = searchParams.get("token");
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
 
   const {
     register,
@@ -41,35 +41,32 @@ const token = searchParams.get("token");
     mode: "onChange",
   });
 
-
-  
-  const { mutate, isPending } = useResetPasseord();
+  const { mutate, isPending } = useResetPassword();
   const onSubmit = async (data: ResetPasswordFormData) => {
- console.log(token)
+    console.log(token);
 
-     if (!token) {
-    toast("Invalid or missing token", {
-      description: "The reset token is missing from the URL.",
-    });
-    return;
-  }
+    if (!token) {
+      toast("Invalid or missing token", {
+        description: "The reset token is missing from the URL.",
+      });
+      return;
+    }
 
-    const payload = {...data, token };
+    const payload = { ...data, token };
     mutate(payload, {
       onSuccess: (res) => {
-        toast(res.message, {
-        });
+        toast(res.message, {});
         reset();
         setTimeout(() => {
-        navigate("/login"); }, 1500);
+          navigate("/login");
+        }, 1500);
       },
       onError: (error: any) => {
-       const apiErrorMessage =
-      error.response?.data?.message || "Something went wrong. Try again.";
-      toast("Error Occur", {
-          description:apiErrorMessage,
+        const apiErrorMessage =
+          error.response?.data?.message || "Something went wrong. Try again.";
+        toast("Error Occur", {
+          description: apiErrorMessage,
         });
-
       },
     });
   };
@@ -146,10 +143,12 @@ const token = searchParams.get("token");
               )}
             </div>
 
-            <Button type="submit" className="w-full mt-6 bg-card-box" disabled={isPending}
+            <Button
+              type="submit"
+              className="w-full mt-6 bg-card-box"
+              disabled={isPending}
             >
               {isPending ? "Reset Password..." : "Reset Password"}
-              
             </Button>
           </form>
         </CardContent>
