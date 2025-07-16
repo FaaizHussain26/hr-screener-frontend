@@ -1,20 +1,23 @@
 import { ProfilePage } from "@/components/settings/profile-page";
-
-// Example usage with initial data
-const initialProfileData = {
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@example.com",
-  phone: "+1234567890",
-  profileImage: "/placeholder.svg?height=128&width=128",
-  address: "Mr John Doe. 132 My Street, Kingston, New York 12401.",
-  isActive: true,
-};
+import useAuth from "@/hooks/useAuth";
 
 export function SettingsPage() {
+  const { user } = useAuth();
+
+  const data = {
+    id: user?._id,
+    firstName: user?.firstName,
+    lastName: user?.lastName,
+    email: user?.email,
+    phoneNumber: user?.phoneNumber,
+    profileImage: user?.profileImage,
+    address: user?.address,
+    isActive: user?.isActive,
+  };
+
   return (
     <div>
-      <ProfilePage initialData={initialProfileData} />
+      <ProfilePage initialData={data} />
     </div>
   );
 }

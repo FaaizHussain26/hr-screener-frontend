@@ -1,5 +1,6 @@
 "use client";
 
+import { useUpdateProfile } from "@/api/hooks/useUpdateProfile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -25,15 +26,13 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import * as z from "zod";
 import { UpdatePasswordForm } from "./update-password-form";
-import { useUpdateProfile } from "@/api/hooks/useUpdateProfile";
-import { useNavigate } from "react-router";
 
 // Zod validation schema
 const profileSchema = z.object({
-  id: z.string(),
   firstName: z
     .string()
     .min(2, "First name must be at least 2 characters")
@@ -46,7 +45,7 @@ const profileSchema = z.object({
     .string()
     .email("Please enter a valid email address")
     .min(1, "Email is required"),
-  phone: z
+  phoneNumber: z
     .string()
     .regex(/^[+]?[1-9][\d]{0,15}$/, "Please enter a valid phone number")
     .min(10, "Phone number must be at least 10 digits"),
@@ -85,55 +84,10 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
       firstName: initialData?.firstName || "",
       lastName: initialData?.lastName || "",
       email: initialData?.email || "",
-      phone: initialData?.phone || "",
+      phoneNumber: initialData?.phoneNumber || "",
       address: initialData?.address || "",
       isActive: initialData?.isActive ?? false,
     },
-  });
-
-  // const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     // Validate file type
-  //     if (!file.type.startsWith("image/")) {
-  //       toast("Invalid file type", {
-  //         description: "Please select an image file",
-  //       });
-  //       return;
-  //     }
-
-  //     // Validate file size (5MB limit)
-  //     if (file.size > 5 * 1024 * 1024) {
-  //       toast("File too large", {
-  //         description: "Please select an image smaller than 5MB",
-  //       });
-  //       return;
-  //     }
-
-  //     const reader = new FileReader();
-  //     reader.onload = (e) => {
-  //       setProfileImage(e.target?.result as string);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
-
-  // const handleRemoveImage = () => {
-  //   setProfileImage(null);
-  //   // Reset the file input
-  //   const fileInput = document.getElementById(
-  //     "profile-image"
-  //   ) as HTMLInputElement;
-  //   if (fileInput) {
-  //     fileInput.value = "";
-  //   }
-  // };
-
-  const navigate = useNavigate();
-
-  const { reset } = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
-    mode: "onChange",
   });
 
   const { mutate, isPending } = useUpdateProfile();
@@ -142,10 +96,9 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
     mutate(data, {
       onSuccess: (res) => {
         toast(res.message, {});
-        reset();
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        // @ts-ignore
+        localStorage.setItem("user", JSON.stringify(res.user));
+        form.reset();
       },
       onError: () => {
         toast("Error Occur", {
@@ -155,11 +108,7 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
     });
   };
 
-  // const getInitials = () => {
-  //   const firstName = form.watch("firstName");
-  //   const lastName = form.watch("lastName");
-  //   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  // };
+  console.log(form.formState.errors);
 
   const renderProfileContent = () => (
     <div className="space-y-6">
@@ -247,7 +196,7 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
 
               <FormField
                 control={form.control}
-                name="phone"
+                name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium text-gray-700">
@@ -327,14 +276,6 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
               />
 
               <div className="flex justify-end space-x-4 pt-4">
-                {/* <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => form.reset()}
-                  disabled={isLoading}
-                >
-                  Reset
-                </Button> */}
                 <Button
                   type="submit"
                   disabled={isPending}
