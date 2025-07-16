@@ -26,114 +26,18 @@ import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Pagination } from "@/components/ui/pagination";
+import { useShortListedCandidates } from "@/api/hooks/useShortListedCandidates";
 
-const allCandidates = [
-  {
-    id: 1,
-    aplicant_name: "Alex Smith",
-    job_matched: "Yes",
-    experience: 6,
-    match_score: 95,
-  },
-  {
-    id: 2,
-    aplicant_name: "Shane Shaw",
-    job_matched: "No",
-    experience: 4,
-    match_score: 82,
-  },
-  {
-    id: 3,
-    aplicant_name: "Will Shane",
-    job_matched: "Yes",
-    experience: 8,
-    match_score: 75,
-  },
-  {
-    id: 4,
-    aplicant_name: "Angelina Agustus",
-    job_matched: "No",
-    experience: 3,
-    match_score: 60,
-  },
-  {
-    id: 5,
-    aplicant_name: "William Smith",
-    job_matched: "Yes",
-    experience: 5,
-    match_score: 90,
-  },
-  {
-    id: 6,
-    aplicant_name: "Sarah Johnson",
-    job_matched: "Yes",
-    experience: 7,
-    match_score: 88,
-  },
-  {
-    id: 7,
-    aplicant_name: "Michael Brown",
-    job_matched: "No",
-    experience: 2,
-    match_score: 55,
-  },
-  {
-    id: 8,
-    aplicant_name: "Emily Davis",
-    job_matched: "Yes",
-    experience: 9,
-    match_score: 92,
-  },
-  {
-    id: 9,
-    aplicant_name: "David Wilson",
-    job_matched: "No",
-    experience: 4,
-    match_score: 68,
-  },
-  {
-    id: 10,
-    aplicant_name: "Lisa Anderson",
-    job_matched: "Yes",
-    experience: 6,
-    match_score: 85,
-  },
-  {
-    id: 11,
-    aplicant_name: "James Taylor",
-    job_matched: "No",
-    experience: 3,
-    match_score: 72,
-  },
-  {
-    id: 12,
-    aplicant_name: "Jennifer Martinez",
-    job_matched: "Yes",
-    experience: 8,
-    match_score: 94,
-  },
-  {
-    id: 13,
-    aplicant_name: "Robert Garcia",
-    job_matched: "No",
-    experience: 5,
-    match_score: 78,
-  },
-  {
-    id: 14,
-    aplicant_name: "Maria Rodriguez",
-    job_matched: "Yes",
-    experience: 7,
-    match_score: 89,
-  },
-  {
-    id: 15,
-    aplicant_name: "Christopher Lee",
-    job_matched: "No",
-    experience: 4,
-    match_score: 63,
-  },
-];
+interface ShortListedCandidate {
+  id: number;
+  applicant_name: string;
+  job_matched: string;
+  match_score: number;
+  experience: {
+    years_found: number;
+    match: "yes" | "no";
+  };
+}
 
 const ITEMS_PER_PAGE = 5;
 
@@ -141,15 +45,16 @@ export function AgentsPage() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-
+  const { data: shortListedCandidates = [] } = useShortListedCandidates();
+  console.log(shortListedCandidates, "shortListedCandidates");
   const handleAgentClick = (allCandidatesId: number) => {
     navigate(`/shortlist-candidates/${allCandidatesId}`);
   };
 
   const filteredCandidates = useMemo(() => {
-    return allCandidates.filter((candidate) => {
+    return shortListedCandidates?.filter((candidate: ShortListedCandidate) => {
       const matchesSearch =
-        candidate.aplicant_name
+        candidate.applicant_name
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         candidate.job_matched
@@ -159,7 +64,7 @@ export function AgentsPage() {
         candidate.experience.toString().includes(searchTerm.toLowerCase());
       return matchesSearch;
     });
-  }, [searchTerm]);
+  }, [searchTerm, shortListedCandidates]);
 
   const totalPages = Math.ceil(filteredCandidates.length / ITEMS_PER_PAGE);
 
@@ -249,13 +154,13 @@ export function AgentsPage() {
               </TableHeader>
               <TableBody>
                 {paginatedCandidates.length > 0 ? (
-                  paginatedCandidates.map((candidate) => (
+                  paginatedCandidates.map((candidate: ShortListedCandidate) => (
                     <TableRow
                       key={candidate.id}
                       className="hover:bg-gray-50 transition-colors cursor-pointer"
                     >
                       <TableCell className="font-medium text-gray-900 whitespace-nowrap pl-8">
-                        {candidate.aplicant_name}
+                        {candidate.applicant_name}
                       </TableCell>
                       <TableCell className="text-gray-600 whitespace-nowrap">
                         <Badge
@@ -274,7 +179,9 @@ export function AgentsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-gray-600 whitespace-nowrap">
-                        {candidate.experience} years
+                        {candidate.experience.years_found > 0
+                          ? `${candidate.experience.years_found} years`
+                          : "N/A"}
                       </TableCell>
                       <TableCell className="text-gray-600 whitespace-nowrap">
                         <Badge
