@@ -94,9 +94,9 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
   const onSubmit = async (data: ProfileFormData) => {
     mutate(data, {
       onSuccess: (res) => {
+        console.log(res);
         toast(res.message, {});
-        // @ts-ignore
-        localStorage.setItem("user", JSON.stringify(res.user));
+        localStorage.setItem("user", JSON.stringify(res));
         form.reset();
       },
       onError: () => {
@@ -179,6 +179,7 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <Input
+                          disabled
                           type="email"
                           placeholder="Enter your email address"
                           className="pl-10"

@@ -1,18 +1,16 @@
-import ChatWidget from "./components/chatbot/chat-widget";
-import { ThemeProvider } from "./components/chatbot/theme-provider";
 import { BrowserRouter } from "react-router";
+import { Toaster } from "sonner";
+import { ThemeProvider } from "./components/chatbot/theme-provider";
 import "./index.css";
 import Main from "./pages";
-import { Toaster } from "sonner";
 
 function App() {
   return (
-    
     <BrowserRouter>
       <ThemeProvider defaultTheme="light" storageKey="scitech-theme">
         <Main />
         <Toaster />
-        <ChatWidget />
+        {/* <ChatWidget /> */}
       </ThemeProvider>
     </BrowserRouter>
   );

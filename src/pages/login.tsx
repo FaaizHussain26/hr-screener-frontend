@@ -70,7 +70,7 @@ export default function LoginPage() {
         console.log("Login successful:", response);
         setMessage("Login successful!");
         setMessageType("success");
-        navigate("/dashboard");
+        navigate("/dashboard/home");
       },
       onError: (err: unknown) => {
         console.error("Login failed", err);
