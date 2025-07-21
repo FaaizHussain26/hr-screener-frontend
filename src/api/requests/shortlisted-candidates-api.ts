@@ -1,9 +1,14 @@
 import axiosInstance from "../axiosInstance";
 
 export interface QueryParams {
-  page?: number;
   search?: string;
+  page?: number;
   limit?: number;
+  isDeleted?: boolean;
+  matchScoreMin?: number | null;
+  matchScoreMax?: number | null;
+  summaryMatched?: boolean | null;
+  jobTitle?: string;
 }
 
 export const getShortListedCandidates = async (params: QueryParams) => {

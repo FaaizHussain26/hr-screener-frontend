@@ -7,7 +7,6 @@ export const shortlistCandidateData = {
     tableColumnTwo: "Job Matched",
     tableColumnThree: "Experience",
     tableColumnFour: "Matched Score",
-    tableColumnFive: "Deleted",
-    tableColumnSix: "Action",
+    tableColumnFive: "Action",
   },
 };
