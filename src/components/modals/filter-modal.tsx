@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from "@radix-ui/react-dialog";
 
-import type { FilterState } from "../shortlisted-candidates-page";
 import { DialogFooter, DialogHeader } from "../ui/dialog";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "../ui/input";
@@ -20,6 +19,13 @@ import {
   SelectValue,
 } from "@radix-ui/react-select";
 import { Button } from "../ui/button";
+
+interface FilterState {
+  matchScoreMin: number | null;
+  matchScoreMax: number | null;
+  summaryMatched: boolean | null;
+  jobTitle: string;
+}
 
 interface FilterModalProps {
   open: boolean;
