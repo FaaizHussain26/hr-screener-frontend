@@ -20,6 +20,13 @@ import {
 } from "@radix-ui/react-select";
 import { Button } from "../ui/button";
 
+export type FilterState = {
+  matchScoreMin: number | null;
+  matchScoreMax: number | null;
+  summaryMatched: boolean | null;
+  jobTitle: string;
+};
+
 interface FilterModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

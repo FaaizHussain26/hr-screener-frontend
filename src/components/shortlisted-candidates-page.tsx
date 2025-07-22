@@ -20,6 +20,7 @@ import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate
 import { Eye, Filter, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DeleteConfirmationModal } from "./modals/delete-confirmation";
+import { FilterModal, FilterState } from "./modals/filter-modal";
 
 interface ShortListedCandidate {
   _id: string;
@@ -43,6 +44,14 @@ export function ShortlistedCandidatesPage() {
   const [candidateToDelete, setCandidateToDelete] =
     useState<ShortListedCandidate | null>(null);
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    matchScoreMin: null,
+    matchScoreMax: null,
+    summaryMatched: null,
+    jobTitle: "",
+  });
+
   const {
     data: shortListedCandidates,
     isError,
@@ -62,6 +71,33 @@ export function ShortlistedCandidatesPage() {
   };
 
   const allCandidates = shortListedCandidates?.data || [];
+
+  const filteredCandidates = allCandidates.filter(
+    (candidate: ShortListedCandidate) => {
+      const { matchScoreMin, matchScoreMax, summaryMatched, jobTitle } =
+        filters;
+
+      const score = candidate.match_score;
+
+      const matchScoreMatch =
+        (matchScoreMin === null || score >= matchScoreMin) &&
+        (matchScoreMax === null || score <= matchScoreMax);
+
+      const summaryMatch =
+        summaryMatched === null ||
+        (summaryMatched
+          ? candidate.job_matched === "Yes"
+          : candidate.job_matched === "No");
+
+      const jobTitleMatch =
+        jobTitle === "" ||
+        candidate.applicant_name.toLowerCase().includes(jobTitle.toLowerCase());
+
+      return matchScoreMatch && summaryMatch && jobTitleMatch;
+    }
+  );
+
+  // const allCandidates = shortListedCandidates?.data || [];
   // const visibleCandidates = allCandidates.filter(
   //   (c: { isDeleted: boolean }) => !c.isDeleted
   // );
@@ -237,7 +273,7 @@ export function ShortlistedCandidatesPage() {
             />
             <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           </div>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
             <Filter className="mr-2 h-4 w-4" /> Filter
           </Button>
         </div>
@@ -275,7 +311,7 @@ export function ShortlistedCandidatesPage() {
                 </TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>{renderCandidateRows(allCandidates)}</TableBody>
+            <TableBody>{renderCandidateRows(filteredCandidates)}</TableBody>
           </Table>
         </CardContent>
       </Card>
@@ -310,6 +346,16 @@ export function ShortlistedCandidatesPage() {
           </Card>
         </TabsContent> */}
       {/* </Tabs> */}
+
+      <FilterModal
+        open={isFilterOpen}
+        onOpenChange={setIsFilterOpen}
+        filters={filters}
+        onApplyFilters={(newFilters) => {
+          setFilters(newFilters);
+          setIsFilterOpen(false);
+        }}
+      />
 
       <DeleteConfirmationModal
         open={!!candidateToDelete}
