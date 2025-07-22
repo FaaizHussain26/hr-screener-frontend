@@ -20,7 +20,7 @@ import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate
 import { Eye, Filter, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DeleteConfirmationModal } from "./modals/delete-confirmation";
-import { FilterModal, FilterState } from "./modals/filter-modal";
+import { FilterPopover, FilterState } from "./modals/filter-modal";
 
 interface ShortListedCandidate {
   _id: string;
@@ -70,7 +70,8 @@ export function ShortlistedCandidatesPage() {
     setCandidateToDelete(null);
   };
 
-  const allCandidates = shortListedCandidates?.data || [];
+  const allCandidates: ShortListedCandidate[] =
+    shortListedCandidates?.data || [];
 
   const filteredCandidates = allCandidates.filter(
     (candidate: ShortListedCandidate) => {
@@ -273,9 +274,19 @@ export function ShortlistedCandidatesPage() {
             />
             <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           </div>
-          <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
-            <Filter className="mr-2 h-4 w-4" /> Filter
-          </Button>
+          <FilterPopover
+            open={isFilterOpen}
+            onOpenChange={setIsFilterOpen}
+            filters={filters}
+            onApplyFilters={(newFilters) => {
+              setFilters(newFilters);
+              setIsFilterOpen(false);
+            }}
+          >
+            <Button variant="secondary">
+              <Filter className="mr-2 h-4 w-4" /> Filter
+            </Button>
+          </FilterPopover>
         </div>
       </div>
 
@@ -346,16 +357,6 @@ export function ShortlistedCandidatesPage() {
           </Card>
         </TabsContent> */}
       {/* </Tabs> */}
-
-      <FilterModal
-        open={isFilterOpen}
-        onOpenChange={setIsFilterOpen}
-        filters={filters}
-        onApplyFilters={(newFilters) => {
-          setFilters(newFilters);
-          setIsFilterOpen(false);
-        }}
-      />
 
       <DeleteConfirmationModal
         open={!!candidateToDelete}
