@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate-data";
 import { Eye, Filter, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -39,7 +39,7 @@ const ITEMS_PER_PAGE = 4;
 export function ShortlistedCandidatesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [tab, setTab] = useState("active");
+  // const [tab, setTab] = useState("active");
   const [candidateToDelete, setCandidateToDelete] =
     useState<ShortListedCandidate | null>(null);
 
@@ -62,12 +62,12 @@ export function ShortlistedCandidatesPage() {
   };
 
   const allCandidates = shortListedCandidates?.data || [];
-  const visibleCandidates = allCandidates.filter(
-    (c: { isDeleted: boolean }) => !c.isDeleted
-  );
-  const deletedCandidates = allCandidates.filter(
-    (c: { isDeleted: boolean }) => c.isDeleted
-  );
+  // const visibleCandidates = allCandidates.filter(
+  //   (c: { isDeleted: boolean }) => !c.isDeleted
+  // );
+  // const deletedCandidates = allCandidates.filter(
+  //   (c: { isDeleted: boolean }) => c.isDeleted
+  // );
   const lastPages = shortListedCandidates?.last_page || 1;
 
   const handlePageChange = (page: number) => setCurrentPage(page);
@@ -163,16 +163,31 @@ export function ShortlistedCandidatesPage() {
                 {`${candidate.match_score}%`}
               </Badge>
             </TableCell>
+            <TableCell className="text-center">
+              <Badge
+                className={
+                  candidate.isDeleted
+                    ? "bg-red-100 text-red-800"
+                    : "bg-green-100 text-green-800 "
+                }
+              >
+                {candidate.isDeleted ? "Yes" : "No"}
+              </Badge>
+            </TableCell>
 
             <TableCell className="text-center">
               <div className="flex justify-center gap-2">
                 <Eye className="h-4 w-4 hover:text-blue-500 cursor-pointer" />
-                {!candidate.isDeleted && (
+                <Trash2
+                  onClick={() => setCandidateToDelete(candidate)}
+                  className="h-4 w-4 text-red-500 hover:text-red-700 cursor-pointer"
+                />
+                {/* {!candidate.isDeleted && (
                   <Trash2
                     onClick={() => setCandidateToDelete(candidate)}
                     className="h-4 w-4 text-red-500 hover:text-red-700 cursor-pointer"
                   />
-                )}
+                )} */}
               </div>
             </TableCell>
           </TableRow>
@@ -228,42 +243,45 @@ export function ShortlistedCandidatesPage() {
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={setTab} className="w-full">
-        <TabsList>
+      {/* <Tabs value={tab} onValueChange={setTab} className="w-full"> */}
+      {/* <TabsList>
           <TabsTrigger value="active">Active</TabsTrigger>
           <TabsTrigger value="deleted">Deleted</TabsTrigger>
-        </TabsList>
+        </TabsList> */}
 
-        <TabsContent value="active">
-          <Card>
-            <CardContent className="p-0 overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="text-center">
-                    <TableHead className="text-left pl-10">
-                      {shortlistCandidateData.tableColumn.tableColumnOne}
-                    </TableHead>
-                    <TableHead className="text-center">
-                      {shortlistCandidateData.tableColumn.tableColumnTwo}
-                    </TableHead>
-                    <TableHead className="text-center">
-                      {shortlistCandidateData.tableColumn.tableColumnThree}
-                    </TableHead>
-                    <TableHead className="text-center">
-                      {shortlistCandidateData.tableColumn.tableColumnFour}
-                    </TableHead>
-                    <TableHead className="text-center w-[120px]">
-                      {shortlistCandidateData.tableColumn.tableColumnFive}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>{renderCandidateRows(visibleCandidates)}</TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+      {/* <TabsContent value="active"> */}
+      <Card>
+        <CardContent className="p-0 overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-center">
+                <TableHead className="text-left pl-10">
+                  {shortlistCandidateData.tableColumn.tableColumnOne}
+                </TableHead>
+                <TableHead className="text-center">
+                  {shortlistCandidateData.tableColumn.tableColumnTwo}
+                </TableHead>
+                <TableHead className="text-center">
+                  {shortlistCandidateData.tableColumn.tableColumnThree}
+                </TableHead>
+                <TableHead className="text-center">
+                  {shortlistCandidateData.tableColumn.tableColumnFour}
+                </TableHead>
+                <TableHead className="text-center">
+                  {shortlistCandidateData.tableColumn.tableColumnFive}
+                </TableHead>
+                <TableHead className="text-center w-[120px]">
+                  {shortlistCandidateData.tableColumn.tableColumnSix}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>{renderCandidateRows(allCandidates)}</TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+      {/* </TabsContent> */}
 
-        <TabsContent value="deleted">
+      {/* <TabsContent value="deleted">
           <Card>
             <CardContent className="p-0 overflow-x-auto">
               <Table>
@@ -290,10 +308,8 @@ export function ShortlistedCandidatesPage() {
               </Table>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-
-      {renderPagination()}
+        </TabsContent> */}
+      {/* </Tabs> */}
 
       <DeleteConfirmationModal
         open={!!candidateToDelete}
@@ -301,6 +317,8 @@ export function ShortlistedCandidatesPage() {
         onClickConfirm={handleDeleteClick}
         loading={isDeleting}
       />
+
+      {renderPagination()}
     </div>
   );
 }

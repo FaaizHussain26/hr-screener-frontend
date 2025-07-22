@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from "@radix-ui/react-dialog";
 
-import type { FilterState } from "../shortlisted-candidates-page";
 import { DialogFooter, DialogHeader } from "../ui/dialog";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "../ui/input";
