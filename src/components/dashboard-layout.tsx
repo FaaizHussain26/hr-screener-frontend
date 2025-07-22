@@ -37,43 +37,45 @@ import {
 } from "@/components/ui/sidebar";
 import { useCallback } from "react";
 import { dashboardLayout } from "@/utils/Content-Data/dashboard-layout-data";
-
-const data = {
-  user: {
-    name: "Alex Johnson",
-    email: "alex@company.com",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  navMain: [
-    {
-      title: dashboardLayout.sideBar.sideBarOne,
-      url: "/dashboard/home",
-      icon: BarChart3,
-    },
-    {
-      title: dashboardLayout.sideBar.sideBarTwo,
-      url: "/dashboard/shortlist-candidates",
-      icon: Bot,
-    },
-    {
-      title: dashboardLayout.sideBar.sideBarThree,
-      url: "/dashboard/analytics",
-      icon: BarChart3,
-    },
-    {
-      title: dashboardLayout.sideBar.sideBarFour,
-      url: "/dashboard/users",
-      icon: Users,
-    },
-    {
-      title: dashboardLayout.sideBar.sideBarFive,
-      url: "/dashboard/settings",
-      icon: Settings,
-    },
-  ],
-};
+import useAuth from "@/hooks/useAuth";
 
 export function DashboardLayout() {
+  const { user } = useAuth();
+
+  const data = {
+    user: {
+      name: `${user?.firstName} ${user?.lastName}`,
+      email: user?.email,
+      avatar: "/placeholder.svg?height=32&width=32",
+    },
+    navMain: [
+      {
+        title: dashboardLayout.sideBar.sideBarOne,
+        url: "/dashboard/home",
+        icon: BarChart3,
+      },
+      {
+        title: dashboardLayout.sideBar.sideBarTwo,
+        url: "/dashboard/shortlist-candidates",
+        icon: Bot,
+      },
+      {
+        title: dashboardLayout.sideBar.sideBarThree,
+        url: "/dashboard/analytics",
+        icon: BarChart3,
+      },
+      {
+        title: dashboardLayout.sideBar.sideBarFour,
+        url: "/dashboard/users",
+        icon: Users,
+      },
+      {
+        title: dashboardLayout.sideBar.sideBarFive,
+        url: "/dashboard/settings",
+        icon: Settings,
+      },
+    ],
+  };
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -109,6 +111,12 @@ export function DashboardLayout() {
       navigate("/login", { replace: true });
     }
   }, [navigate]);
+
+  function getInitials(name: string): string {
+    if (!name) return "";
+    const [firstName = "", lastName = ""] = name.trim().split(" ");
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  }
 
   return (
     <SidebarProvider>
@@ -207,7 +215,7 @@ export function DashboardLayout() {
                         alt={data.user.name}
                       />
                       <AvatarFallback className="rounded-lg bg-card-box">
-                        AJ
+                        {getInitials(data.user.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight ">
@@ -235,7 +243,7 @@ export function DashboardLayout() {
                           alt={data.user.name}
                         />
                         <AvatarFallback className="rounded-lg">
-                          AJ
+                          {getInitials(data.user.name)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">

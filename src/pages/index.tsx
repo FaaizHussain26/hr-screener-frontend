@@ -10,8 +10,8 @@ import LoginPage from "./login";
 import RegisterPage from "./register";
 import { ResetPassword } from "./reset-password";
 import { SettingsPage } from "./settings";
-import { AgentsPage } from "./shortlist-candidate";
 import { UsersPage } from "./users";
+import ShorlistCandidates from "./shortlisted-candidates";
 
 export default function Main() {
   return (
@@ -72,7 +72,7 @@ export default function Main() {
             </AuthMiddleware>
           }
         />
-        <Route path="shortlist-candidates" element={<AgentsPage />} />
+        <Route path="shortlist-candidates" element={<ShorlistCandidates />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="agents/:id" element={<AgentDetailsPage />} />
         <Route path="users" element={<UsersPage />} />
