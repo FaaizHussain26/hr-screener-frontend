@@ -1,10 +1,10 @@
-import { DashboardLayout } from "@/components/dashboard-layout";
+import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import AuthMiddleware from "@/components/middleware/auth-middleware";
 import GuestMiddleware from "@/components/middleware/guest-middleware";
 import { Route, Routes } from "react-router";
 import { AgentDetailsPage } from "./agent-details";
 import { AnalyticsPage } from "./analytics";
-import { DashboardPage } from "./dashboard";
+
 import { ForgotPassword } from "./forgot-password";
 import LoginPage from "./login";
 import RegisterPage from "./register";
@@ -12,6 +12,7 @@ import { ResetPassword } from "./reset-password";
 import { SettingsPage } from "./settings";
 import { UsersPage } from "./users";
 import ShorlistCandidates from "./shortlisted-candidates";
+import Dashboard from "./dashboard";
 
 export default function Main() {
   return (
@@ -68,7 +69,7 @@ export default function Main() {
           path="home"
           element={
             <AuthMiddleware>
-              <DashboardPage />
+              <Dashboard />
             </AuthMiddleware>
           }
         />

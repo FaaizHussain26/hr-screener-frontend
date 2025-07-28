@@ -34,11 +34,11 @@ export interface ShortListedCandidate {
   experience: {
     years_found: number;
     match: "yes" | "no";
-    [key: string]: any;
+    [key: string]: unknown;
   };
-  bonus_matches: any[];
+  bonus_matches: unknown[];
   match_score: number;
-  jobs_matched: any[];
+  jobs_matched: unknown[];
   outlook_details?: {
     message_id: string;
     attachment_id: string;
@@ -95,7 +95,7 @@ function EmptyState({
   title,
   description,
   icon: Icon = Users,
-}: {
+}: /* eslint-disable @typescript-eslint/no-explicit-any */ {
   title: string;
   description: string;
   icon?: any;
@@ -120,7 +120,7 @@ function EmptyState({
 }
 
 // Error State Component
-function ErrorState({ error }: { error: any }) {
+function ErrorState({ error }: { error: unknown }) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <Card className="border-destructive/50">
