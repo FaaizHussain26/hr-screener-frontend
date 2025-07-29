@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,18 +23,25 @@ import { Save, X } from "lucide-react";
 import { toast } from "sonner";
 import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { debounce } from "lodash";
 
-const availableSkills = [
-  "JavaScript",
-  "React",
-  "Node.js",
-  "Python",
-  "TypeScript",
-  "GraphQL",
-  "Docker",
-  "Next.js",
-  "Tailwind",
-];
+// -------------------- Mock APIs --------------------
+const getSkills = async (query: string): Promise<string[]> => {
+  const response = await fetch(`/api/skills?search=${query}`);
+  const data = await response.json();
+  return data.skills;
+};
+
+const addSkill = async (name: string): Promise<string> => {
+  const response = await fetch("/api/skills", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  const data = await response.json();
+  return data.skill; // Return skill name
+};
+// ----------------------------------------------------
 
 const addJobSchema = z.object({
   jobTitle: z.string().min(2, "Job title is required"),
@@ -73,20 +80,52 @@ export const CreateJobModal = ({
   });
 
   const [isSaving, setIsSaving] = useState(false);
-  const selectedSkills = form.watch("selectedSkills");
   const [skillInput, setSkillInput] = useState("");
+  const [suggestedSkills, setSuggestedSkills] = useState<string[]>([]);
+  const selectedSkills = form.watch("selectedSkills");
 
-  const handleAddSkill = (skillToAdd?: string) => {
-    const skill = (skillToAdd || skillInput).trim();
+  // Debounced search
+  const debouncedFetchSkills = debounce(async (query: string) => {
+    try {
+      if (query.length > 0) {
+        const skills = await getSkills(query);
+        setSuggestedSkills(skills.filter((s) => !selectedSkills.includes(s)));
+      } else {
+        setSuggestedSkills([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch skills:", error);
+    }
+  }, 300);
+
+  useEffect(() => {
+    debouncedFetchSkills(skillInput);
+    return () => debouncedFetchSkills.cancel();
+  }, [skillInput]);
+
+  const handleAddSkill = async (value?: string) => {
+    const skill = (value || skillInput).trim();
     if (!skill) return;
+
     if (selectedSkills.includes(skill)) {
       toast.warning("Skill already added");
       return;
     }
+
+    if (!suggestedSkills.includes(skill)) {
+      try {
+        await addSkill(skill); // save to backend
+      } catch {
+        toast.error("Failed to add skill");
+        return;
+      }
+    }
+
     form.setValue("selectedSkills", [...selectedSkills, skill], {
       shouldValidate: true,
     });
     setSkillInput("");
+    setSuggestedSkills([]);
   };
 
   const handleRemoveSkill = (skill: string) => {
@@ -97,21 +136,15 @@ export const CreateJobModal = ({
     );
   };
 
-  const filteredSuggestions = availableSkills.filter(
-    (skill) =>
-      skill.toLowerCase().includes(skillInput.toLowerCase()) &&
-      !selectedSkills.includes(skill)
-  );
-
-  const onSubmit = async (data: AddJobFormData) => {
+  const onSubmit = async () => {
     try {
       setIsSaving(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // replace with actual submit
       toast.success("Job added successfully");
       form.reset();
       onClose();
     } catch {
-      toast.error("Something went wrong. Try again.");
+      toast.error("Something went wrong.");
     } finally {
       setIsSaving(false);
     }
@@ -189,7 +222,7 @@ export const CreateJobModal = ({
               )}
             />
 
-            {/* Skills - search and add */}
+            {/* Skills */}
             <FormField
               control={form.control}
               name="selectedSkills"
@@ -218,9 +251,9 @@ export const CreateJobModal = ({
                     </Button>
                   </div>
 
-                  {filteredSuggestions.length > 0 && (
+                  {suggestedSkills.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {filteredSuggestions.map((skill) => (
+                      {suggestedSkills.map((skill) => (
                         <Badge
                           key={skill}
                           onClick={() => handleAddSkill(skill)}
@@ -255,7 +288,6 @@ export const CreateJobModal = ({
               )}
             />
 
-            {/* Submit */}
             <div className="flex justify-end pt-4">
               <Button
                 type="submit"

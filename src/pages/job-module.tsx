@@ -72,11 +72,7 @@ interface UsersQueryParams {
   isActive?: boolean;
 }
 
-export function JobModulePage({
-  jobModuleData,
-}: {
-  jobModuleData: { button: string };
-}) {
+export function JobModulePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => setIsModalOpen(true);
