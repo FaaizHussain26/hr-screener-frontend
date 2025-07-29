@@ -15,6 +15,7 @@ const AuthMiddleware = ({ children }: Props) => {
       // Token expired or not present
       localStorage.removeItem("token");
       localStorage.removeItem("tokenExpiry");
+
       navigate("/login", { replace: true });
     }
   }, [navigate]);

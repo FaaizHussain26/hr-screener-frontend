@@ -10,5 +10,6 @@ export const dashboardLayout = {
     sideBarThree: "Analytics",
     sideBarFour: "Users",
     sideBarFive: "Settings",
+    sideBarSix: "Job Module",
   },
 };

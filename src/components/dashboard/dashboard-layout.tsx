@@ -60,6 +60,11 @@ export function DashboardLayout() {
         icon: Bot,
       },
       {
+        title: dashboardLayout.sideBar.sideBarSix,
+        url: "/dashboard/job-module",
+        icon: Bot,
+      },
+      {
         title: dashboardLayout.sideBar.sideBarThree,
         url: "/dashboard/analytics",
         icon: BarChart3,
