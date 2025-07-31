@@ -9,7 +9,7 @@ export interface JobsQueryParams {
 }
 
 // Fetch jobs
-export const useJobs = (params: JobsQueryParams = {}) => {
+export const useJobs = (params: JobsQueryParams) => {
   return useQuery({
     queryKey: ["jobs", params],
     queryFn: () => jobsApi.getJobs(params),

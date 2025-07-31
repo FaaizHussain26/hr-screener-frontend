@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 
 export type FilterState = {
-  jobTitle: string;
+  title: string;
   matchScoreMin: number | null;
   matchScoreMax: number | null;
   summaryMatched: boolean | null;
@@ -53,7 +53,7 @@ export function FilterPopover({
       matchScoreMin: null,
       matchScoreMax: null,
       summaryMatched: null,
-      jobTitle: "",
+      title: "",
     };
     setLocalFilters(resetFilters);
   };
@@ -62,7 +62,7 @@ export function FilterPopover({
     localFilters.matchScoreMin !== null ||
     localFilters.matchScoreMax !== null ||
     localFilters.summaryMatched !== null ||
-    localFilters.jobTitle !== "";
+    localFilters.title !== "";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -162,11 +162,11 @@ export function FilterPopover({
             <Label className="text-sm font-medium">Job Title</Label>
             <Input
               placeholder="Enter job title..."
-              value={localFilters.jobTitle}
+              value={localFilters.title}
               onChange={(e) =>
                 setLocalFilters({
                   ...localFilters,
-                  jobTitle: e.target.value,
+                  title: e.target.value,
                 })
               }
             />

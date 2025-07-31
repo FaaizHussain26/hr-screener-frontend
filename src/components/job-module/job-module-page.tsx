@@ -28,7 +28,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import DashboardCard from "@/components/dashboard/dashboard-card";
 import { jobModulePageData } from "@/utils/Content-Data/job-module-data";
 import { CreateJobModal } from "@/components/job-module/create-job-modal";
 import {
@@ -185,7 +184,7 @@ export function JobModulePage() {
   const deleteJobMutation = useDeleteJob();
   const restoreJobMutation = useRestoreJob();
 
-  const jobs: Job[] = jobsResponse?.results || [];
+  const jobs: Job[] = jobsResponse || [];
   const totalPages = jobsResponse?.totalPages || 1;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,7 +265,7 @@ export function JobModulePage() {
             <TableCell className="font-medium text-left">
               <div className="max-w-xs">
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold truncate">{job.jobTitle}</p>
+                  <p className="font-semibold truncate">{job.title}</p>
                   {job.isDeleted && (
                     <Badge variant="destructive" className="text-xs">
                       Deleted
@@ -284,7 +283,7 @@ export function JobModulePage() {
               </Badge>
             </TableCell>
             <TableCell className="text-center">
-              {renderSkills(job.selectedSkills)}
+              {renderSkills(job.skills)}
             </TableCell>
             <TableCell className="text-center">
               <div className="flex justify-center gap-2">
@@ -362,7 +361,7 @@ export function JobModulePage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {dummyData.stats.map((stat, index) => (
           <DashboardCard
             key={index}
@@ -371,7 +370,7 @@ export function JobModulePage() {
             icon={stat.icon}
           />
         ))}
-      </div>
+      </div> */}
 
       {/* Table */}
       <Card>

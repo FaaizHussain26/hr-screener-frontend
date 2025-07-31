@@ -21,7 +21,7 @@ interface ViewUserModalProps {
     role: string;
     isActive: boolean;
     createdAt?: string;
-    jobTitle?: string;
+    title?: string;
     jobExperience?: string;
     skills?: string[];
   } | null;
@@ -129,7 +129,7 @@ export function ViewUserModal({
                   <label className="text-sm font-medium text-muted-foreground">
                     Job Title
                   </label>
-                  <p className="text-sm">{user.jobTitle || "Not specified"}</p>
+                  <p className="text-sm">{user.title || "Not specified"}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">

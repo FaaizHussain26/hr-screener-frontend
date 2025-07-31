@@ -17,10 +17,10 @@ import {
 import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate-data";
 import { Eye, Filter, Search, Trash2, AlertCircle, Users } from "lucide-react";
 import { useState } from "react";
-import { DeleteConfirmationModal } from "./modals/delete-confirmation";
-import { RenderPagination } from "./pagination/pagination";
-import { ViewCandidateDetailModal } from "./sheets/view-details";
-import { FilterPopover, FilterState } from "./modals/filter-modal";
+import { DeleteConfirmationModal } from "../modals/delete-confirmation";
+import { RenderPagination } from "../pagination/pagination";
+import { ViewCandidateDetailModal } from "./view-details";
+import { FilterPopover, FilterState } from "../modals/filter-modal";
 
 export interface ShortListedCandidate {
   _id: string;
@@ -167,7 +167,7 @@ export function ShortlistedCandidatesPage({
     matchScoreMin: null,
     matchScoreMax: null,
     summaryMatched: null,
-    jobTitle: "",
+    title: "",
   });
 
   const {
@@ -197,8 +197,7 @@ export function ShortlistedCandidatesPage({
 
   const filteredCandidates = allCandidates.filter(
     (candidate: ShortListedCandidate) => {
-      const { matchScoreMin, matchScoreMax, summaryMatched, jobTitle } =
-        filters;
+      const { matchScoreMin, matchScoreMax, summaryMatched, title } = filters;
 
       const score = candidate.match_score;
 
@@ -213,8 +212,8 @@ export function ShortlistedCandidatesPage({
           : candidate.job_matched === "No");
 
       const jobTitleMatch =
-        jobTitle === "" ||
-        candidate.applicant_name.toLowerCase().includes(jobTitle.toLowerCase());
+        title === "" ||
+        candidate.applicant_name.toLowerCase().includes(title.toLowerCase());
 
       return matchScoreMatch && summaryMatch && jobTitleMatch;
     }

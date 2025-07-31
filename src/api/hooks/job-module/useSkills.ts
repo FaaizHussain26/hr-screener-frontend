@@ -7,7 +7,7 @@ export const useSkills = (search?: string) => {
   return useQuery({
     queryKey: ["skills", search],
     queryFn: () => skillsApi.getSkills(search),
-    enabled: search !== undefined && search.length > 0,
+    enabled: !!search && search.trim().length >= 1,
     staleTime: 10 * 60 * 1000, // 10 minutes
     select: (data) => data.skills || [],
   });

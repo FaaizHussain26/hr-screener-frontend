@@ -26,7 +26,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useMemo } from "react";
-import type { ShortListedCandidate } from "../shortlisted-candidates-page";
+import type { ShortListedCandidate } from "./shortlisted-candidates-page";
 
 interface ViewCandidateDetailModalProps {
   open: boolean;

@@ -9,7 +9,7 @@ export interface User {
   role: string;
   isActive: boolean;
   createdAt?: string;
-  jobTitle?: string;
+  title?: string;
   jobExperience?: string;
   skills?: string[];
 }

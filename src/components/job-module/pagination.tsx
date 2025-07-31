@@ -14,8 +14,8 @@ export function RenderPagination({
   currentPage,
   totalPages,
   onPageChange,
-  itemsPerPage,
-}: PaginationProps) {
+}: // itemsPerPage,
+PaginationProps) {
   const getVisiblePages = () => {
     const delta = 2;
     const range = [];

@@ -26,17 +26,16 @@ import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCreateJob } from "@/api/hooks/job-module/useJobs";
 import { useCreateSkill, useSkills } from "@/api/hooks/job-module/useSkills";
+import { useDebounce } from "use-debounce";
 
 const addJobSchema = z.object({
-  jobTitle: z.string().min(2, "Job title is required"),
+  title: z.string().min(2, "Job title is required"),
   experience: z.string().min(1, "Experience is required"),
   summary: z.string().min(10, "Summary must be at least 10 characters"),
-  jobDescription: z
+  description: z
     .string()
     .min(20, "Job description must be at least 20 characters"),
-  selectedSkills: z
-    .array(z.string())
-    .min(1, "Please select at least one skill"),
+  skills: z.array(z.string()).min(1, "Please select at least one skill"),
 });
 
 export type AddJobFormData = z.infer<typeof addJobSchema>;
@@ -55,32 +54,34 @@ export const CreateJobModal = ({
   const form = useForm<AddJobFormData>({
     resolver: zodResolver(addJobSchema),
     defaultValues: {
-      jobTitle: initialData.jobTitle || "",
+      title: initialData.title || "",
       experience: initialData.experience || "",
       summary: initialData.summary || "",
-      jobDescription: initialData.jobDescription || "",
-      selectedSkills: initialData.selectedSkills || [],
+      description: initialData.description || "",
+      skills: initialData.skills || [],
     },
   });
 
   const [skillInput, setSkillInput] = useState("");
-  const selectedSkills = form.watch("selectedSkills");
+  const skills = form.watch("skills");
 
   // Hooks
   const createJobMutation = useCreateJob();
   const createSkillMutation = useCreateSkill();
-  const { data: suggestedSkills = [] } = useSkills(skillInput);
+
+  const [debouncedSkillInput] = useDebounce(skillInput, 300);
+  const { data: suggestedSkills = [] } = useSkills(debouncedSkillInput);
 
   // Filter out already selected skills
   const filteredSuggestions = suggestedSkills.filter(
-    (skill) => !selectedSkills.includes(skill.name)
+    (skill) => !skills.includes(skill.name)
   );
 
   const handleAddSkill = async (value?: string) => {
     const skill = (value || skillInput).trim();
     if (!skill) return;
 
-    if (selectedSkills.includes(skill)) {
+    if (skills.includes(skill)) {
       return;
     }
 
@@ -100,7 +101,7 @@ export const CreateJobModal = ({
     }
 
     // Add skill to form
-    form.setValue("selectedSkills", [...selectedSkills, skill], {
+    form.setValue("skills", [...skills, skill], {
       shouldValidate: true,
     });
     setSkillInput("");
@@ -108,8 +109,8 @@ export const CreateJobModal = ({
 
   const handleRemoveSkill = (skill: string) => {
     form.setValue(
-      "selectedSkills",
-      selectedSkills.filter((s) => s !== skill),
+      "skills",
+      skills.filter((s) => s !== skill),
       { shouldValidate: true }
     );
   };
@@ -143,7 +144,7 @@ export const CreateJobModal = ({
             {/* Job Title */}
             <FormField
               control={form.control}
-              name="jobTitle"
+              name="title"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Job Title</FormLabel>
@@ -188,7 +189,7 @@ export const CreateJobModal = ({
             {/* Job Description */}
             <FormField
               control={form.control}
-              name="jobDescription"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Job Description</FormLabel>
@@ -206,7 +207,7 @@ export const CreateJobModal = ({
             {/* Skills */}
             <FormField
               control={form.control}
-              name="selectedSkills"
+              name="skills"
               render={() => (
                 <FormItem>
                   <FormLabel>Required Skills</FormLabel>
@@ -247,7 +248,7 @@ export const CreateJobModal = ({
                   )}
                   <CardContent className="mt-3 border rounded p-2 max-h-32 overflow-y-auto">
                     <div className="flex flex-wrap gap-2">
-                      {selectedSkills.map((skill, index) => (
+                      {skills.map((skill, index) => (
                         <Badge
                           key={index}
                           variant="secondary"
