@@ -174,9 +174,11 @@ export function ViewJobModal({ open, onOpenChange, job }: ViewJobModalProps) {
                       </p>
                     </div>
                     <div>
-                      <label className="font-medium text-muted-foreground">
-                        Last Updated
-                      </label>
+                      <>
+                        <label className="font-medium text-muted-foreground">
+                          Last Updated
+                        </label>
+                      </>
                       <p className="mt-1">
                         {new Date(job.updatedAt).toLocaleDateString()}
                       </p>
