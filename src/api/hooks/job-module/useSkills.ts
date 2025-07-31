@@ -1,18 +1,21 @@
-import { skillsApi } from "@/api/requests/job-module-api";
+import {
+  Skill,
+  skillsApi,
+  SkillsResponse,
+} from "@/api/requests/job-module-api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-// Fetch skills
 export const useSkills = (search?: string) => {
-  return useQuery({
+  return useQuery<Skill[], Error>({
     queryKey: ["skills", search],
-    queryFn: () => skillsApi.getSkills(search),
-    enabled: !!search && search.trim().length >= 1,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    select: (data) => data.skills || [],
+    queryFn: async () => {
+      const response: SkillsResponse = await skillsApi.getSkills(search);
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000,
   });
 };
-
 // Create skill
 export const useCreateSkill = () => {
   const queryClient = useQueryClient();

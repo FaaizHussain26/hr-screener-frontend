@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -10,6 +9,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCreateJob } from "@/api/hooks/job-module/useJobs";
 import { useCreateSkill, useSkills } from "@/api/hooks/job-module/useSkills";
 import { useDebounce } from "use-debounce";
+import { Skill } from "@/api/requests/job-module-api";
 
 const addJobSchema = z.object({
   title: z.string().min(2, "Job title is required"),
@@ -68,26 +75,21 @@ export const CreateJobModal = ({
   // Hooks
   const createJobMutation = useCreateJob();
   const createSkillMutation = useCreateSkill();
-
   const [debouncedSkillInput] = useDebounce(skillInput, 300);
-  const { data: suggestedSkills = [] } = useSkills(debouncedSkillInput);
+  const { data: suggestedSkills = [] } = useSkills(debouncedSkillInput ?? "");
 
   // Filter out already selected skills
   const filteredSuggestions = suggestedSkills.filter(
-    (skill) => !skills.includes(skill.name)
+    (skill) => !skills.includes(skill.technical_skill)
   );
 
-  const handleAddSkill = async (value?: string) => {
-    const skill = (value || skillInput).trim();
-    if (!skill) return;
-
-    if (skills.includes(skill)) {
-      return;
-    }
+  const handleAddSkill = async (value: string) => {
+    const skill = value.trim();
+    if (!skill || skills.includes(skill)) return;
 
     // Check if skill exists in suggestions
     const existingSkill = suggestedSkills.find(
-      (s) => s.name.toLowerCase() === skill.toLowerCase()
+      (s) => s.technical_skill.toLowerCase() === skill.toLowerCase()
     );
 
     if (!existingSkill) {
@@ -100,11 +102,16 @@ export const CreateJobModal = ({
       }
     }
 
-    // Add skill to form
     form.setValue("skills", [...skills, skill], {
       shouldValidate: true,
     });
     setSkillInput("");
+  };
+
+  const handleAddCustomSkill = async () => {
+    if (skillInput.trim()) {
+      await handleAddSkill(skillInput);
+    }
   };
 
   const handleRemoveSkill = (skill: string) => {
@@ -125,7 +132,6 @@ export const CreateJobModal = ({
     }
   };
 
-  // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       form.reset();
@@ -204,65 +210,90 @@ export const CreateJobModal = ({
               )}
             />
 
-            {/* Skills */}
             <FormField
               control={form.control}
               name="skills"
               render={() => (
                 <FormItem>
                   <FormLabel>Required Skills</FormLabel>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Search or add a skill"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === ",") {
-                          e.preventDefault();
-                          handleAddSkill();
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Select
+                        onValueChange={(value) => {
+                          if (value && !skills.includes(value)) {
+                            handleAddSkill(value);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Select a skill..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {filteredSuggestions.length > 0 ? (
+                            filteredSuggestions.map((skill: Skill) => (
+                              <SelectItem
+                                key={skill._id}
+                                value={skill.technical_skill}
+                              >
+                                {skill.technical_skill}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            // Removed the SelectItem with value=""
+                            // You can optionally add a message here if needed, but it won't be selectable
+                            <div className="px-4 py-2 text-sm text-muted-foreground">
+                              No skills available
+                            </div>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Add custom skill input */}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Or add a new skill..."
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddCustomSkill();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleAddCustomSkill}
+                        disabled={
+                          !skillInput.trim() || createSkillMutation.isPending
                         }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      onClick={() => handleAddSkill()}
-                      disabled={
-                        !skillInput.trim() || createSkillMutation.isPending
-                      }
-                    >
-                      {createSkillMutation.isPending ? "Adding..." : "Add"}
-                    </Button>
+                      >
+                        {createSkillMutation.isPending ? "Adding..." : "Add"}
+                      </Button>
+                    </div>
                   </div>
-                  {filteredSuggestions.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {filteredSuggestions.map((skill) => (
-                        <Badge
-                          key={skill._id}
-                          onClick={() => handleAddSkill(skill.name)}
-                          className="cursor-pointer bg-muted hover:bg-muted/80"
-                        >
-                          + {skill.name}
-                        </Badge>
-                      ))}
-                    </div>
+
+                  {/* Selected Skills */}
+                  {skills.length > 0 && (
+                    <CardContent className="mt-3 border rounded p-2 max-h-32 overflow-y-auto">
+                      <div className="flex flex-wrap gap-2">
+                        {skills.map((skill, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
+                            {skill}
+                            <X
+                              className="w-3 h-3 cursor-pointer hover:text-red-500"
+                              onClick={() => handleRemoveSkill(skill)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
                   )}
-                  <CardContent className="mt-3 border rounded p-2 max-h-32 overflow-y-auto">
-                    <div className="flex flex-wrap gap-2">
-                      {skills.map((skill, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className="flex items-center gap-1"
-                        >
-                          {skill}
-                          <X
-                            className="w-3 h-3 cursor-pointer hover:text-red-500"
-                            onClick={() => handleRemoveSkill(skill)}
-                          />
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
                   <FormMessage />
                 </FormItem>
               )}

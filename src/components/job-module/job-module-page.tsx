@@ -3,10 +3,7 @@
 import type React from "react";
 
 import {
-  Clock,
   FilePlus,
-  MessageSquare,
-  Users,
   Eye,
   Trash2,
   AlertCircle,
@@ -40,28 +37,28 @@ import { DeleteConfirmationModal } from "./modals/delete-confirmation-modal";
 import { ViewJobModal } from "./modals/view-job-modal";
 import { RenderPagination } from "./pagination";
 
-const dummyData = {
-  stats: [
-    {
-      title: jobModulePageData.card.cardOne,
-      value: "12,847",
-      change: "2",
-      icon: MessageSquare,
-    },
-    {
-      title: jobModulePageData.card.cardTwo,
-      value: "2,847",
-      change: "5",
-      icon: Users,
-    },
-    {
-      title: jobModulePageData.card.cardThree,
-      value: "1.2s",
-      change: "7",
-      icon: Clock,
-    },
-  ],
-};
+// const dummyData = {
+//   stats: [
+//     {
+//       title: jobModulePageData.card.cardOne,
+//       value: "12,847",
+//       change: "2",
+//       icon: MessageSquare,
+//     },
+//     {
+//       title: jobModulePageData.card.cardTwo,
+//       value: "2,847",
+//       change: "5",
+//       icon: Users,
+//     },
+//     {
+//       title: jobModulePageData.card.cardThree,
+//       value: "1.2s",
+//       change: "7",
+//       icon: Clock,
+//     },
+//   ],
+// };
 
 const ITEMS_PER_PAGE = 15;
 

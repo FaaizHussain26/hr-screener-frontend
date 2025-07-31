@@ -24,14 +24,12 @@ export interface JobsResponse {
 
 export interface Skill {
   _id: string;
-  name: string;
+  technical_skill: string;
   createdAt?: string;
 }
 
 export interface SkillsResponse {
-  skills: Skill[];
-  success: boolean;
-  message?: string;
+  data: Skill[];
 }
 
 // Jobs API
@@ -102,8 +100,7 @@ export const skillsApi = {
     const response = await axiosInstance.get("/skills", {
       params: { search },
     });
-    console.log(response);
-    return response.data;
+    return response;
   },
 
   // POST /api/v1/jobs/skill

@@ -25,24 +25,13 @@ import {
   Hash,
   Edit,
   Share,
-  ExternalLink,
   Save,
   X,
   Plus,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-
-interface Job {
-  _id: string;
-  title: string;
-  experience: string;
-  summary: string;
-  description: string;
-  skills: string[];
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { useUpdateJob } from "@/api/hooks/job-module/useJobs";
+import type { Job } from "@/api/requests/job-module-api";
 
 interface ViewJobModalProps {
   open: boolean;
@@ -290,6 +279,8 @@ function SkillsCard({
 
   if (!isEditing && (!skills || skills.length === 0)) return null;
 
+  console.log(skills, "skills");
+
   return (
     <Card className="h-fit m-5">
       <CardHeader className="pb-3">
@@ -398,35 +389,6 @@ function DataCard({
   );
 }
 
-function TechnicalInfoCard({ job }: { job: Job }) {
-  return (
-    <Card className="h-fit m-5">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <FileText className="w-5 h-5" />
-          Technical Information
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-            <span className="font-medium text-sm">Job ID:</span>
-            <Badge variant="outline" className="ml-2 font-mono text-xs">
-              {job._id}
-            </Badge>
-          </div>
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-            <span className="font-medium text-sm">Skills Count:</span>
-            <Badge variant="outline" className="ml-2">
-              {job.skills.length} skills
-            </Badge>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export function ViewJobModal({
   open,
   onOpenChange,
@@ -435,7 +397,6 @@ export function ViewJobModal({
   onShareJob,
 }: ViewJobModalProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<JobFormData>({
     title: "",
     experience: "",
@@ -443,7 +404,9 @@ export function ViewJobModal({
     description: "",
     skills: [],
   });
-  const { toast } = useToast();
+
+  // Use the update job mutation
+  const updateJobMutation = useUpdateJob();
 
   // Initialize form data when job changes
   useEffect(() => {
@@ -457,6 +420,13 @@ export function ViewJobModal({
       });
     }
   }, [job]);
+
+  // Reset editing state when modal closes
+  useEffect(() => {
+    if (!open) {
+      setIsEditing(false);
+    }
+  }, [open]);
 
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -478,42 +448,21 @@ export function ViewJobModal({
   const handleSave = async () => {
     if (!job) return;
 
-    setIsSaving(true);
     try {
-      const response = await fetch(`/api/v1/jobs/${job._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update job");
-      }
-
-      const updatedJob = await response.json();
-
-      toast({
-        title: "Success",
-        description: "Job updated successfully!",
+      await updateJobMutation.mutateAsync({
+        id: job._id,
+        data: formData,
       });
 
       setIsEditing(false);
 
-      // Optionally call onEditJob to update parent component
+      // Call onEditJob callback if provided
       if (onEditJob) {
-        onEditJob(updatedJob);
+        onEditJob({ ...job, ...formData });
       }
     } catch (error) {
+      // Error handling is done in the mutation
       console.error("Error updating job:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update job. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -563,34 +512,23 @@ export function ViewJobModal({
                     Share Job
                   </Button>
                 )}
-                {/* <Button
-                  size="sm"
-                  variant="outline"
-                  asChild
-                  className="flex items-center gap-2 bg-transparent"
-                >
-                  <a href={`/jobs/${job._id}`} target="_blank" rel="noreferrer">
-                    <ExternalLink className="w-4 h-4" />
-                    View Public
-                  </a>
-                </Button> */}
               </>
             ) : (
               <>
                 <Button
                   size="sm"
                   onClick={handleSave}
-                  disabled={isSaving}
+                  disabled={updateJobMutation.isPending}
                   className="flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
-                  {isSaving ? "Saving..." : "Save Changes"}
+                  {updateJobMutation.isPending ? "Saving..." : "Save Changes"}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleCancel}
-                  disabled={isSaving}
+                  disabled={updateJobMutation.isPending}
                   className="flex items-center gap-2 bg-transparent"
                 >
                   <X className="w-4 h-4" />
@@ -609,21 +547,13 @@ export function ViewJobModal({
             onFormChange={handleFormChange}
           />
 
-          <div className="grid grid-cols-2 lg:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-6">
-              <SkillsCard
-                skills={job.skills}
-                isEditing={isEditing}
-                formData={formData}
-                onSkillsChange={handleSkillsChange}
-              />
-            </div>
-
-            {/* Right Column */}
-            {/* <div className="space-y-6">
-              {!isEditing && <TechnicalInfoCard job={job} />}
-            </div> */}
+          <div className="grid grid-cols-1 gap-6">
+            <SkillsCard
+              skills={job.skills}
+              isEditing={isEditing}
+              formData={formData}
+              onSkillsChange={handleSkillsChange}
+            />
           </div>
 
           <DataCard
@@ -641,7 +571,7 @@ export function ViewJobModal({
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={isSaving}
+            disabled={updateJobMutation.isPending}
           >
             Close
           </Button>
