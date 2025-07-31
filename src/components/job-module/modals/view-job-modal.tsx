@@ -1,18 +1,37 @@
 "use client";
 
+import type React from "react";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, Clock, FileText, Calendar } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Briefcase,
+  Clock,
+  FileText,
+  Calendar,
+  Hash,
+  Edit,
+  Share,
+  ExternalLink,
+  Save,
+  X,
+  Plus,
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Job {
   _id: string;
@@ -29,169 +48,601 @@ interface ViewJobModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   job: Job | null;
+  onEditJob?: (job: Job) => void;
+  onShareJob?: (job: Job) => void;
 }
 
-export function ViewJobModal({ open, onOpenChange, job }: ViewJobModalProps) {
+interface JobFormData {
+  title: string;
+  experience: string;
+  summary: string;
+  description: string;
+  skills: string[];
+}
+
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+      <Icon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+      <span className="font-medium text-sm min-w-0">{label}:</span>
+      <span className="text-sm truncate">{value}</span>
+    </div>
+  );
+}
+
+function EditableInfoRow({
+  icon: Icon,
+  label,
+  value,
+  onChange,
+  name,
+  type = "text",
+  placeholder,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  name: string;
+  type?: string;
+  placeholder?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label
+        htmlFor={name}
+        className="flex items-center gap-2 text-sm font-medium"
+      >
+        <Icon className="w-4 h-4 text-muted-foreground" />
+        {label}
+      </Label>
+      <Input
+        id={name}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full"
+      />
+    </div>
+  );
+}
+
+function EditableTextareaRow({
+  icon: Icon,
+  label,
+  value,
+  onChange,
+  name,
+  placeholder,
+  rows = 3,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  name: string;
+  placeholder?: string;
+  rows?: number;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label
+        htmlFor={name}
+        className="flex items-center gap-2 text-sm font-medium"
+      >
+        <Icon className="w-4 h-4 text-muted-foreground" />
+        {label}
+      </Label>
+      <Textarea
+        id={name}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        rows={rows}
+        className="w-full resize-none"
+      />
+    </div>
+  );
+}
+
+function BasicInfoCard({
+  job,
+  isEditing,
+  formData,
+  onFormChange,
+}: {
+  job: Job;
+  isEditing: boolean;
+  formData: JobFormData;
+  onFormChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+}) {
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  return (
+    <Card className="h-fit m-5">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Briefcase className="w-5 h-5" />
+          Job Information
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {isEditing ? (
+          <>
+            <EditableInfoRow
+              icon={Briefcase}
+              label="Job Title"
+              value={formData.title}
+              onChange={onFormChange}
+              name="title"
+              placeholder="Enter job title"
+            />
+            <EditableInfoRow
+              icon={Clock}
+              label="Experience Required"
+              value={formData.experience}
+              onChange={onFormChange}
+              name="experience"
+              placeholder="e.g., 2-3 years, Entry Level, Senior"
+            />
+            <EditableTextareaRow
+              icon={FileText}
+              label="Summary"
+              value={formData.summary}
+              onChange={onFormChange}
+              name="summary"
+              placeholder="Brief job summary..."
+              rows={3}
+            />
+          </>
+        ) : (
+          <div className="space-y-2">
+            <InfoRow icon={Briefcase} label="Job Title" value={job.title} />
+            <InfoRow
+              icon={Clock}
+              label="Experience Required"
+              value={job.experience}
+            />
+            {job.createdAt && (
+              <InfoRow
+                icon={Calendar}
+                label="Created Date"
+                value={formatDate(job.createdAt)}
+              />
+            )}
+            {job.updatedAt && (
+              <InfoRow
+                icon={Calendar}
+                label="Last Updated"
+                value={formatDate(job.updatedAt)}
+              />
+            )}
+            {job.summary && (
+              <>
+                <Separator className="my-4" />
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium text-sm">Summary:</span>
+                  </div>
+                  <div className="bg-muted/50 p-4 rounded-lg border-l-4 border-primary">
+                    <p className="text-sm leading-relaxed">{job.summary}</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function SkillsCard({
+  skills,
+  isEditing,
+  formData,
+  onSkillsChange,
+}: {
+  skills: string[];
+  isEditing: boolean;
+  formData: JobFormData;
+  onSkillsChange: (skills: string[]) => void;
+}) {
+  const [newSkill, setNewSkill] = useState("");
+
+  const addSkill = () => {
+    if (newSkill.trim() && !formData.skills.includes(newSkill.trim())) {
+      onSkillsChange([...formData.skills, newSkill.trim()]);
+      setNewSkill("");
+    }
+  };
+
+  const removeSkill = (skillToRemove: string) => {
+    onSkillsChange(formData.skills.filter((skill) => skill !== skillToRemove));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addSkill();
+    }
+  };
+
+  if (!isEditing && (!skills || skills.length === 0)) return null;
+
+  return (
+    <Card className="h-fit m-5">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Hash className="w-5 h-5" />
+          Required Skills ({isEditing ? formData.skills.length : skills.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isEditing ? (
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Add a skill..."
+                className="flex-1"
+              />
+              <Button onClick={addSkill} size="sm" disabled={!newSkill.trim()}>
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {formData.skills.map((skill, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="hover:bg-secondary/80 transition-colors group cursor-pointer"
+                  onClick={() => removeSkill(skill)}
+                >
+                  {skill}
+                  <X className="w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Badge>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill, index) => (
+              <Badge
+                key={index}
+                variant="secondary"
+                className="hover:bg-secondary/80 transition-colors"
+              >
+                {skill}
+              </Badge>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function DataCard({
+  title,
+  icon: Icon,
+  data,
+  isEditing,
+  formData,
+  onFormChange,
+  fieldName,
+}: {
+  title: string;
+  icon: any;
+  data: string | null;
+  isEditing: boolean;
+  formData: JobFormData;
+  onFormChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  fieldName: keyof JobFormData;
+}) {
+  if (!isEditing && !data) return null;
+
+  return (
+    <Card className="h-fit m-5">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Icon className="w-5 h-5" />
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isEditing ? (
+          <div className="space-y-2">
+            <Textarea
+              name={fieldName}
+              value={formData[fieldName] as string}
+              onChange={onFormChange}
+              placeholder={`Enter ${title.toLowerCase()}...`}
+              rows={8}
+              className="w-full resize-none font-mono text-sm"
+            />
+          </div>
+        ) : (
+          <div className="bg-muted/50 rounded-lg border">
+            <ScrollArea className="h-64 p-4">
+              <pre className="text-sm whitespace-pre-wrap font-mono">
+                {data}
+              </pre>
+            </ScrollArea>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function TechnicalInfoCard({ job }: { job: Job }) {
+  return (
+    <Card className="h-fit m-5">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <FileText className="w-5 h-5" />
+          Technical Information
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <span className="font-medium text-sm">Job ID:</span>
+            <Badge variant="outline" className="ml-2 font-mono text-xs">
+              {job._id}
+            </Badge>
+          </div>
+          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <span className="font-medium text-sm">Skills Count:</span>
+            <Badge variant="outline" className="ml-2">
+              {job.skills.length} skills
+            </Badge>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function ViewJobModal({
+  open,
+  onOpenChange,
+  job,
+  onEditJob,
+  onShareJob,
+}: ViewJobModalProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState<JobFormData>({
+    title: "",
+    experience: "",
+    summary: "",
+    description: "",
+    skills: [],
+  });
+  const { toast } = useToast();
+
+  // Initialize form data when job changes
+  useEffect(() => {
+    if (job) {
+      setFormData({
+        title: job.title || "",
+        experience: job.experience || "",
+        summary: job.summary || "",
+        description: job.description || "",
+        skills: job.skills || [],
+      });
+    }
+  }, [job]);
+
+  const handleFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSkillsChange = (skills: string[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      skills,
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!job) return;
+
+    setIsSaving(true);
+    try {
+      const response = await fetch(`/api/v1/jobs/${job._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update job");
+      }
+
+      const updatedJob = await response.json();
+
+      toast({
+        title: "Success",
+        description: "Job updated successfully!",
+      });
+
+      setIsEditing(false);
+
+      // Optionally call onEditJob to update parent component
+      if (onEditJob) {
+        onEditJob(updatedJob);
+      }
+    } catch (error) {
+      console.error("Error updating job:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update job. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (job) {
+      setFormData({
+        title: job.title || "",
+        experience: job.experience || "",
+        summary: job.summary || "",
+        description: job.description || "",
+        skills: job.skills || [],
+      });
+    }
+    setIsEditing(false);
+  };
+
   if (!job) return null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-2xl lg:max-w-4xl xl:max-w-6xl overflow-hidden">
+      <SheetContent className="w-full sm:max-w-xl lg:max-w-xl xl:max-w-2xl overflow-hidden">
         <SheetHeader className="space-y-3 pb-4">
           <SheetTitle className="flex items-center gap-2 text-xl">
-            <Briefcase className="h-5 w-5" />
-            Job Details
+            <Briefcase className="w-6 h-6" />
+            {isEditing ? "Edit Job" : job.title}
           </SheetTitle>
-          <SheetDescription>
-            Detailed information about {job.title}
-          </SheetDescription>
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2">
+            {!isEditing ? (
+              <>
+                <Button
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Edit className="w-4 h-4" />
+                  Edit Job
+                </Button>
+                {onShareJob && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onShareJob(job)}
+                    className="flex items-center gap-2"
+                  >
+                    <Share className="w-4 h-4" />
+                    Share Job
+                  </Button>
+                )}
+                {/* <Button
+                  size="sm"
+                  variant="outline"
+                  asChild
+                  className="flex items-center gap-2 bg-transparent"
+                >
+                  <a href={`/jobs/${job._id}`} target="_blank" rel="noreferrer">
+                    <ExternalLink className="w-4 h-4" />
+                    View Public
+                  </a>
+                </Button> */}
+              </>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 bg-transparent"
+                >
+                  <X className="w-4 h-4" />
+                  Cancel
+                </Button>
+              </>
+            )}
+          </div>
         </SheetHeader>
 
         <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-          <div className="space-y-6">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Briefcase className="h-5 w-5" />
-                  Basic Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Job Title
-                    </label>
-                    <p className="text-lg font-semibold">{job.title}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Experience Required
-                    </label>
-                    <div className="mt-1">
-                      <Badge variant="outline" className="text-sm">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {job.experience}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+          <BasicInfoCard
+            job={job}
+            isEditing={isEditing}
+            formData={formData}
+            onFormChange={handleFormChange}
+          />
 
-                {job.createdAt && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Created Date
-                    </label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <p className="text-sm">
-                        {new Date(job.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-2 lg:grid-cols-2 gap-6">
+            {/* Left Column */}
+            <div className="space-y-6">
+              <SkillsCard
+                skills={job.skills}
+                isEditing={isEditing}
+                formData={formData}
+                onSkillsChange={handleSkillsChange}
+              />
+            </div>
 
-            {/* Job Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Job Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm leading-relaxed">{job.summary}</p>
-              </CardContent>
-            </Card>
-
-            {/* Job Description */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Job Description
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {job.description}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Required Skills */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  Required Skills
-                  <Badge variant="secondary" className="ml-2">
-                    {job.skills.length} skills
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {job.skills && job.skills.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {job.skills.map((skill, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="text-sm"
-                      >
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    No skills specified
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Additional Information */}
-            {job.updatedAt && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">
-                    Additional Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <label className="font-medium text-muted-foreground">
-                        Job ID
-                      </label>
-                      <p className="font-mono text-xs bg-muted px-2 py-1 rounded mt-1">
-                        {job._id}
-                      </p>
-                    </div>
-                    <div>
-                      <>
-                        <label className="font-medium text-muted-foreground">
-                          Last Updated
-                        </label>
-                      </>
-                      <p className="mt-1">
-                        {new Date(job.updatedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {/* Right Column */}
+            {/* <div className="space-y-6">
+              {!isEditing && <TechnicalInfoCard job={job} />}
+            </div> */}
           </div>
+
+          <DataCard
+            title="Job Description"
+            icon={FileText}
+            data={job.description}
+            isEditing={isEditing}
+            formData={formData}
+            onFormChange={handleFormChange}
+            fieldName="description"
+          />
         </ScrollArea>
 
         <SheetFooter className="pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSaving}
+          >
             Close
           </Button>
         </SheetFooter>
