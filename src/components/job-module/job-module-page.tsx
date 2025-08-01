@@ -35,32 +35,9 @@ import {
 import { Job } from "@/api/requests/job-module-api";
 import { DeleteConfirmationModal } from "./modals/delete-confirmation-modal";
 import { ViewJobModal } from "./modals/view-job-modal";
-import { RenderPagination } from "./pagination";
+import { RenderPagination } from "./pagination-job";
 
-// const dummyData = {
-//   stats: [
-//     {
-//       title: jobModulePageData.card.cardOne,
-//       value: "12,847",
-//       change: "2",
-//       icon: MessageSquare,
-//     },
-//     {
-//       title: jobModulePageData.card.cardTwo,
-//       value: "2,847",
-//       change: "5",
-//       icon: Users,
-//     },
-//     {
-//       title: jobModulePageData.card.cardThree,
-//       value: "1.2s",
-//       change: "7",
-//       icon: Clock,
-//     },
-//   ],
-// };
-
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 7;
 
 // Skeleton Components
 function TableRowSkeleton() {
@@ -155,12 +132,17 @@ function ErrorState({ error }: { error: unknown }) {
   );
 }
 
-export function JobModulePage() {
+export function JobModulePage({
+  disablePagination,
+}: {
+  disablePagination?: boolean;
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
   const [jobToView, setJobToView] = useState<Job | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -181,8 +163,11 @@ export function JobModulePage() {
   const deleteJobMutation = useDeleteJob();
   const restoreJobMutation = useRestoreJob();
 
-  const jobs: Job[] = jobsResponse || [];
-  const totalPages = jobsResponse?.totalPages || 1;
+  const jobs: Job[] = jobsResponse?.data || [];
+  const lastPages = jobsResponse?.last_page || 1;
+
+  // const totalPages = jobsResponse?.last_page || 1;
+  // const totalItems = jobsResponse?.total || 0;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -204,9 +189,7 @@ export function JobModulePage() {
     restoreJobMutation.mutate(job._id);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const handlePageChange = (page: number) => setCurrentPage(page);
 
   const renderSkills = (skills: string[]) => {
     if (!skills || skills.length === 0) {
@@ -357,26 +340,13 @@ export function JobModulePage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {dummyData.stats.map((stat, index) => (
-          <DashboardCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            icon={stat.icon}
-          />
-        ))}
-      </div> */}
-
-      {/* Table */}
-      <Card>
+      <Card className="pl-5">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto ">
             <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="font-semibold text-left w-1/3">
+              <TableHeader className="bg-muted/50">
+                <TableRow className="">
+                  <TableHead className="font-semibold text-left w-1/3 ">
                     Job Title
                   </TableHead>
                   <TableHead className="text-center font-semibold w-1/4">
@@ -397,15 +367,14 @@ export function JobModulePage() {
       </Card>
 
       {/* Pagination */}
-      {!isLoading && jobs.length > 0 && (
+      {!isLoading && jobs.length > 0 && !disablePagination && (
         <RenderPagination
+          lastPages={lastPages}
           currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          itemsPerPage={ITEMS_PER_PAGE}
+          handlePageChange={handlePageChange}
+          ITEMS_PER_PAGE={ITEMS_PER_PAGE}
         />
       )}
-
       {/* Modals */}
       <CreateJobModal isOpen={isModalOpen} onClose={handleCloseModal} />
 

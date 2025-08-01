@@ -46,7 +46,7 @@ const Dashboard = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-auto ">
           <DashboardPage onJobSelect={handleJobSelect} />
         </main>
       </div>

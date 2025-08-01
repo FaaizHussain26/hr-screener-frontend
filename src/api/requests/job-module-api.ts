@@ -1,5 +1,16 @@
 import axiosInstance from "../axiosInstance";
 
+export interface QueryParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+  isDeleted?: boolean;
+  matchScoreMin?: number | null;
+  matchScoreMax?: number | null;
+  summaryMatched?: boolean | null;
+  title?: string;
+}
+
 // Job Interfaces
 export interface Job {
   _id: string;
@@ -14,12 +25,10 @@ export interface Job {
 }
 
 export interface JobsResponse {
-  results: Job[];
-  totalPages: number;
-  currentPage: number;
-  totalCount: number;
-  success: boolean;
-  message?: string;
+  total: number;
+  current_page: number;
+  last_page: number;
+  per_page: number;
 }
 
 export interface Skill {
@@ -33,17 +42,24 @@ export interface SkillsResponse {
 }
 
 // Jobs API
+// export const jobsApi = {
+//   // GET /api/v1/jobs
+//   getJobs: async (
+//     params: {
+//       page?: number;
+//       limit?: number;
+//       search?: string;
+//     } = {}
+//   ): Promise<JobsResponse> => {
+//     const { data } = await axiosInstance.get("/jobs", { params });
+//     return data.data;
+//   },
+
 export const jobsApi = {
   // GET /api/v1/jobs
-  getJobs: async (
-    params: {
-      page?: number;
-      limit?: number;
-      search?: string;
-    } = {}
-  ): Promise<JobsResponse> => {
+  getJobs: async (params: QueryParams) => {
     const { data } = await axiosInstance.get("/jobs", { params });
-    return data.data;
+    return data;
   },
 
   // GET /api/v1/jobs/{id}

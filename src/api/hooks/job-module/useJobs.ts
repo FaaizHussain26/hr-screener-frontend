@@ -8,13 +8,25 @@ export interface JobsQueryParams {
   search?: string;
 }
 
+export interface QueryParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+  isDeleted?: boolean;
+  matchScoreMin?: number | null;
+  matchScoreMax?: number | null;
+  summaryMatched?: boolean | null;
+  title?: string;
+}
+
 // Fetch jobs
-export const useJobs = (params: JobsQueryParams) => {
+export const useJobs = (params: QueryParams) => {
   return useQuery({
     queryKey: ["jobs", params],
     queryFn: () => jobsApi.getJobs(params),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
+    refetchOnWindowFocus: false,
   });
 };
 
