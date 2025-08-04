@@ -18,7 +18,7 @@ import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate
 import { Eye, Filter, Search, Trash2, AlertCircle, Users } from "lucide-react";
 import { useState } from "react";
 import { DeleteConfirmationModal } from "../modals/delete-confirmation";
-import { RenderPagination } from "../pagination/pagination";
+import { RenderPagination } from "./pagination";
 import { ViewCandidateDetailModal } from "./view-details";
 import { FilterPopover, FilterState } from "../modals/filter-modal";
 

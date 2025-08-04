@@ -1,5 +1,3 @@
-import { Applicant } from "@/components/dashboard/dashboard-page";
-
 export const jobs = [
   {
     id: "JHR-2024-001",
@@ -59,7 +57,7 @@ export const jobs = [
   },
 ];
 
-export const applicants: Record<string, Applicant[]> = {
+export const applicants = {
   "JHR-2024-001": [
     {
       name: "Ali Khan",

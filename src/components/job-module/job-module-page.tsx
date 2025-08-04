@@ -84,7 +84,7 @@ function EmptyState({
 }: {
   title: string;
   description: string;
-  icon?: any;
+  icon?: React.ElementType;
 }) {
   return (
     <TableRow>
@@ -242,7 +242,7 @@ export function JobModulePage({
             key={job._id}
             className="hover:bg-muted/50 transition-colors"
           >
-            <TableCell className="font-medium text-left">
+            <TableCell className="text-left pl-10 font-medium">
               <div className="max-w-xs">
                 <div className="flex items-center gap-2">
                   <p className="font-semibold truncate">{job.title}</p>
@@ -340,13 +340,13 @@ export function JobModulePage({
         </div>
       </div>
 
-      <Card className="pl-5">
+      <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto ">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow className="">
-                  <TableHead className="font-semibold text-left w-1/3 ">
+                  <TableHead className="font-semibold text-left w-1/3 pl-10 ">
                     Job Title
                   </TableHead>
                   <TableHead className="text-center font-semibold w-1/4">
