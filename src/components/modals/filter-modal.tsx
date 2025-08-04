@@ -1,15 +1,8 @@
-"use client";
-
 import type React from "react";
 
 import { useState } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -17,17 +10,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { Label } from "@radix-ui/react-dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
 import { Filter } from "lucide-react";
+import { Input } from "../ui/input";
 
-export type FilterState = {
+interface FilterState {
   matchScoreMin: number | null;
   matchScoreMax: number | null;
   summaryMatched: boolean | null;
   jobTitle: string;
-};
+}
 
-interface FilterPopoverProps {
+interface FilterModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   filters: FilterState;
@@ -39,7 +38,7 @@ export function FilterPopover({
   filters,
   onApplyFilters,
   children,
-}: FilterPopoverProps) {
+}: FilterModalProps) {
   const [localFilters, setLocalFilters] = useState<FilterState>(filters);
   const [open, setOpen] = useState(false);
 
@@ -156,23 +155,6 @@ export function FilterPopover({
               </SelectContent>
             </Select>
           </div>
-
-          {/* Job Title */}
-          {/* <div className="space-y-2">
-            <Label className="text-sm font-medium">Job Title</Label>
-            <Input
-              placeholder="Enter job title..."
-              value={localFilters.jobTitle}
-              onChange={(e) =>
-                setLocalFilters({
-                  ...localFilters,
-                  jobTitle: e.target.value,
-                })
-              }
-            />
-          </div> */}
-
-          {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
             <Button
               variant="outline"

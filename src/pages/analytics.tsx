@@ -54,7 +54,6 @@ export function AnalyticsPage() {
             key={index}
             title={stat.title}
             value={stat.value}
-            change={stat.change}
             icon={stat.icon}
           />
         ))}

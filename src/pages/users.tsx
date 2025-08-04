@@ -1,7 +1,4 @@
-import { Mail, MoreHorizontal, Shield, UserPlus, Users } from "lucide-react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { MoreHorizontal, Shield, UserPlus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,7 +11,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -26,41 +22,46 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { usersData } from "@/utils/Content-Data/users-data";
+import { useUsers } from "@/api/hooks/useUsers";
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
-const users = [
-  {
-    id: 1,
-    name: "Alex Johnson",
-    email: "alex@company.com",
-    role: "Admin",
-    status: "active",
-    lastActive: "2 minutes ago",
-    joinedAt: "2024-01-15",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 2,
-    name: "Sarah Chen",
-    email: "sarah@company.com",
-    role: "Manager",
-    status: "active",
-    lastActive: "1 hour ago",
-    joinedAt: "2024-01-20",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 3,
-    name: "Mike Wilson",
-    email: "mike@company.com",
-    role: "User",
-    status: "inactive",
-    lastActive: "3 days ago",
-    joinedAt: "2024-02-01",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-];
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  createdAt?: string;
+}
+
+interface UsersQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+  isActive?: boolean;
+}
 
 export function UsersPage() {
+  const { data, isLoading, isError } = useUsers({} as UsersQueryParams);
+  const users: User[] = data?.results || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        Loading users...
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="flex flex-1 items-center justify-center text-red-500">
+        Failed to load users.
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
@@ -86,7 +87,7 @@ export function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-muted-foreground">+2 from last month</p>
+            <p className="text-xs text-muted-foreground">&nbsp;</p>
           </CardContent>
         </Card>
         <Card>
@@ -98,7 +99,7 @@ export function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.status === "active").length}
+              {users.filter((u: User) => u.isActive).length}
             </div>
             <p className="text-xs text-muted-foreground">Currently online</p>
           </CardContent>
@@ -112,7 +113,7 @@ export function UsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter((u) => u.role === "Admin").length}
+              {users.filter((u: User) => u.role === "admin").length}
             </div>
             <p className="text-xs text-muted-foreground">
               System administrators
@@ -141,56 +142,18 @@ export function UsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
+              {users.map((user: User) => (
+                <TableRow key={user._id}>
                   <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={user.avatar || "/placeholder.svg"}
-                          alt={user.name}
-                        />
-                        <AvatarFallback>
-                          {user.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {user.email}
-                        </div>
-                      </div>
-                    </div>
+                    {user.firstName} {user.lastName}
                   </TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.role}</TableCell>
+                  <TableCell>{user.isActive ? "active" : "inactive"}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={user.role === "Admin" ? "default" : "outline"}
-                    >
-                      {user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        user.status === "active" ? "default" : "secondary"
-                      }
-                      className={
-                        user.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : ""
-                      }
-                    >
-                      {user.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {user.lastActive}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {user.joinedAt}
+                    {user.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString()
+                      : "-"}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -201,7 +164,7 @@ export function UsersPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem>
-                          <Mail className="mr-2 h-4 w-4" />
+                          {/* <Mail className="mr-2 h-4 w-4" /> */}
                           Send Email
                         </DropdownMenuItem>
                         <DropdownMenuItem>

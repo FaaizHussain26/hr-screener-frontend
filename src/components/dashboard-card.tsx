@@ -5,14 +5,12 @@ import { Card, CardContent } from "@/components/ui/card"; // adjust import based
 interface StatCardProps {
   title: string;
   value: number | string;
-  change: number| string;
   icon: React.ElementType;
 }
 
 const DashboardCard: React.FC<StatCardProps> = ({
   title,
   value,
-  change,
   icon: Icon,
 }) => {
   return (
@@ -28,9 +26,6 @@ const DashboardCard: React.FC<StatCardProps> = ({
             <p className="text-sm font-medium text-gray-600 truncate">
               {title}
             </p>
-            <span className="text-xs text-orange-500 font-medium bg-orange-100 px-2 py-1 rounded-xl">
-              {change}%
-            </span>
           </div>
           <p className="text-2xl font-bold text-gray-900">{value}</p>
         </div>

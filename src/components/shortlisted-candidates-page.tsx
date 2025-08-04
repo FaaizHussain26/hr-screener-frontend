@@ -1,12 +1,11 @@
-"use client";
-
+import type React from "react";
 import { useDeleteShortListedCandidates } from "@/api/hooks/useDeleteShortListedCandidate";
 import { useShortListedCandidates } from "@/api/hooks/useShortListedCandidates";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -15,33 +14,158 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate-data";
-import { Eye, Filter, Search, Trash2 } from "lucide-react";
+import { Eye, Filter, Search, Trash2, AlertCircle, Users } from "lucide-react";
 import { useState } from "react";
 import { DeleteConfirmationModal } from "./modals/delete-confirmation";
-import { FilterPopover, FilterState } from "./modals/filter-modal";
+import { RenderPagination } from "./pagination/pagination";
+import { ViewCandidateDetailModal } from "./sheets/view-details";
 
-interface ShortListedCandidate {
+interface FilterState {
+  matchScoreMin: number | null;
+  matchScoreMax: number | null;
+  summaryMatched: boolean | null;
+  jobTitle: string;
+}
+
+export interface ShortListedCandidate {
   _id: string;
   applicant_name: string;
-  job_matched: string;
-  match_score: number;
-  deletedAt: string;
-  isDeleted: boolean;
+  applicant_email: string;
+  applicant_phone: string;
+  applicant_summary: string;
+  job_matched: string | boolean;
+  summary_match: string | boolean;
+  matched_skills: string[];
   experience: {
     years_found: number;
     match: "yes" | "no";
+    [key: string]: any;
   };
+  bonus_matches: any[];
+  match_score: number;
+  jobs_matched: any[];
+  outlook_details?: {
+    message_id: string;
+    attachment_id: string;
+  };
+  cv_details: string;
+  job_applied_for: string;
+  deletedAt: string;
+  isDeleted: boolean;
 }
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 15;
 
-export function ShortlistedCandidatesPage() {
+// Skeleton Components
+function TableRowSkeleton() {
+  return (
+    <TableRow>
+      <TableCell className="text-left pl-10">
+        <Skeleton className="h-4 w-32" />
+      </TableCell>
+      <TableCell className="text-center">
+        <Skeleton className="h-6 w-16 mx-auto rounded-full" />
+      </TableCell>
+      <TableCell className="text-center">
+        <Skeleton className="h-4 w-20 mx-auto" />
+      </TableCell>
+      <TableCell className="text-center">
+        <Skeleton className="h-6 w-12 mx-auto rounded-full" />
+      </TableCell>
+      <TableCell className="text-center">
+        <Skeleton className="h-6 w-16 mx-auto rounded-full" />
+      </TableCell>
+      <TableCell className="text-center">
+        <div className="flex justify-center gap-2">
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-4 w-4" />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <TableRowSkeleton key={index} />
+      ))}
+    </>
+  );
+}
+
+// Empty State Component
+function EmptyState({
+  title,
+  description,
+  icon: Icon = Users,
+}: {
+  title: string;
+  description: string;
+  icon?: any;
+}) {
+  return (
+    <TableRow>
+      <TableCell colSpan={6} className="text-center py-12">
+        <div className="flex flex-col items-center gap-4">
+          <div className="rounded-full bg-muted p-4">
+            <Icon className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">{title}</h3>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              {description}
+            </p>
+          </div>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+// Error State Component
+function ErrorState({ error }: { error: any }) {
+  return (
+    <div className="flex flex-1 flex-col gap-4 p-4">
+      <Card className="border-destructive/50">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4">
+            <div className="rounded-full bg-destructive/10 p-3">
+              <AlertCircle className="h-6 w-6 text-destructive" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-medium text-destructive">
+                Error Loading Candidates
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {error instanceof Error
+                  ? error.message
+                  : "An unexpected error occurred"}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export function ShortlistedCandidatesPage({
+  limit,
+  disablePagination,
+  disableFilters,
+}: {
+  limit?: number;
+  disablePagination?: boolean;
+  disableFilters?: boolean;
+}) {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  // const [tab, setTab] = useState("active");
   const [candidateToDelete, setCandidateToDelete] =
+    useState<ShortListedCandidate | null>(null);
+  const [candidateToView, setCandidateToView] =
     useState<ShortListedCandidate | null>(null);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -54,12 +178,13 @@ export function ShortlistedCandidatesPage() {
 
   const {
     data: shortListedCandidates,
+    isLoading,
     isError,
     error,
   } = useShortListedCandidates({
     page: currentPage,
     search: searchTerm,
-    limit: ITEMS_PER_PAGE,
+    limit: limit || ITEMS_PER_PAGE,
   });
 
   const { mutate: deleteCandidate, isPending: isDeleting } =
@@ -70,41 +195,11 @@ export function ShortlistedCandidatesPage() {
     setCandidateToDelete(null);
   };
 
-  const allCandidates: ShortListedCandidate[] =
-    shortListedCandidates?.data || [];
+  const handleViewClick = (candidate: ShortListedCandidate) => {
+    setCandidateToView(candidate);
+  };
 
-  const filteredCandidates = allCandidates.filter(
-    (candidate: ShortListedCandidate) => {
-      const { matchScoreMin, matchScoreMax, summaryMatched, jobTitle } =
-        filters;
-
-      const score = candidate.match_score;
-
-      const matchScoreMatch =
-        (matchScoreMin === null || score >= matchScoreMin) &&
-        (matchScoreMax === null || score <= matchScoreMax);
-
-      const summaryMatch =
-        summaryMatched === null ||
-        (summaryMatched
-          ? candidate.job_matched === "Yes"
-          : candidate.job_matched === "No");
-
-      const jobTitleMatch =
-        jobTitle === "" ||
-        candidate.applicant_name.toLowerCase().includes(jobTitle.toLowerCase());
-
-      return matchScoreMatch && summaryMatch && jobTitleMatch;
-    }
-  );
-
-  // const allCandidates = shortListedCandidates?.data || [];
-  // const visibleCandidates = allCandidates.filter(
-  //   (c: { isDeleted: boolean }) => !c.isDeleted
-  // );
-  // const deletedCandidates = allCandidates.filter(
-  //   (c: { isDeleted: boolean }) => c.isDeleted
-  // );
+  const allCandidates = shortListedCandidates?.data || [];
   const lastPages = shortListedCandidates?.last_page || 1;
 
   const handlePageChange = (page: number) => setCurrentPage(page);
@@ -121,70 +216,49 @@ export function ShortlistedCandidatesPage() {
     return "bg-red-500 text-white";
   };
 
-  const renderPagination = () => {
-    if (lastPages <= 1) return null;
-    const pages = [];
-    const maxVisiblePages = ITEMS_PER_PAGE;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    const endPage = Math.min(lastPages, startPage + maxVisiblePages - 1);
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  const getStatusBadge = (isDeleted: boolean) => {
+    return (
+      <Badge variant={isDeleted ? "destructive" : "default"}>
+        {isDeleted ? "Inactive" : "Active"}
+      </Badge>
+    );
+  };
+
+  const renderCandidateRows = (candidates: ShortListedCandidate[]) => {
+    if (isLoading) {
+      return <TableSkeleton />;
     }
 
-    pages.push(
-      <Button
-        key="prev"
-        variant="outline"
-        size="sm"
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        Previous
-      </Button>
-    );
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <Button
-          key={i}
-          variant={currentPage === i ? "default" : "outline"}
-          size="sm"
-          onClick={() => handlePageChange(i)}
-        >
-          {i}
-        </Button>
+    if (candidates.length === 0) {
+      return (
+        <EmptyState
+          title="No candidates found"
+          description={
+            searchTerm
+              ? `No candidates match your search for "${searchTerm}". Try adjusting your search terms.`
+              : "No candidates have been shortlisted yet. Candidates will appear here once they are added to the system."
+          }
+          icon={searchTerm ? Search : Users}
+        />
       );
     }
 
-    pages.push(
-      <Button
-        key="next"
-        variant="outline"
-        size="sm"
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === lastPages}
-      >
-        Next
-      </Button>
-    );
-
-    return <div className="flex gap-2 justify-center mt-4">{pages}</div>;
-  };
-
-  const renderCandidateRows = (candidates: ShortListedCandidate[]) => (
-    <>
-      {candidates.length > 0 ? (
-        candidates.map((candidate) => (
-          <TableRow key={candidate._id} className="text-center">
-            <TableCell className="text-left pl-10">
+    return (
+      <>
+        {candidates.map((candidate) => (
+          <TableRow
+            key={candidate._id}
+            className="text-center hover:bg-muted/50 transition-colors"
+          >
+            <TableCell className="text-left pl-10 font-medium">
               {candidate.applicant_name}
             </TableCell>
             <TableCell className="text-center">
               <Badge
                 className={
                   candidate.job_matched === "No"
-                    ? "bg-red-100 text-red-800"
-                    : "bg-green-100 text-green-800 "
+                    ? "bg-red-100 text-red-800 hover:bg-red-200"
+                    : "bg-green-100 text-green-800 hover:bg-green-200"
                 }
               >
                 {candidate.job_matched}
@@ -196,167 +270,174 @@ export function ShortlistedCandidatesPage() {
                 : "N/A"}
             </TableCell>
             <TableCell className="text-center">
-              <Badge className={getBadgeClassName(candidate.match_score)}>
-                {`${candidate.match_score}%`}
-              </Badge>
+              <Badge
+                className={getBadgeClassName(candidate.match_score)}
+              >{`${candidate.match_score}%`}</Badge>
             </TableCell>
             <TableCell className="text-center">
-              <Badge
-                className={
-                  candidate.isDeleted
-                    ? "bg-red-100 text-red-800"
-                    : "bg-green-100 text-green-800 "
-                }
-              >
-                {candidate.isDeleted ? "Yes" : "No"}
-              </Badge>
+              {getStatusBadge(candidate.isDeleted)}
             </TableCell>
-
             <TableCell className="text-center">
               <div className="flex justify-center gap-2">
-                <Eye className="h-4 w-4 hover:text-blue-500 cursor-pointer" />
-                <Trash2
-                  onClick={() => setCandidateToDelete(candidate)}
-                  className="h-4 w-4 text-red-500 hover:text-red-700 cursor-pointer"
-                />
-                {/* {!candidate.isDeleted && (
-                  <Trash2
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleViewClick(candidate)}
+                  className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-600"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                {!candidate.isDeleted && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setCandidateToDelete(candidate)}
-                    className="h-4 w-4 text-red-500 hover:text-red-700 cursor-pointer"
-                  />
-                )} */}
+                    className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </TableCell>
           </TableRow>
-        ))
-      ) : (
-        <TableRow>
-          <TableCell
-            colSpan={6}
-            className="text-center py-8 text-muted-foreground"
-          >
-            No candidates found.
-          </TableCell>
-        </TableRow>
-      )}
-    </>
-  );
+        ))}
+      </>
+    );
+  };
 
   if (isError) {
-    return (
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="text-center text-red-600">
-          Error loading candidates:{" "}
-          {error instanceof Error ? error.message : "Unknown error"}
-        </div>
-      </div>
-    );
+    return <ErrorState error={error} />;
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <div className="flex justify-between items-center flex-wrap gap-4">
-        <div>
-          <h2 className="text-2xl font-bold">
-            {shortlistCandidateData.heading}
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            {shortlistCandidateData.subHeading}
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative">
-            <Input
-              placeholder={shortlistCandidateData.searchBar}
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="pl-4 w-full sm:w-64"
-            />
-            <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <div className="flex flex-col gap-6 p-6">
+      {/* Header Section */}
+      <div className="flex justify-between items-start flex-wrap gap-4">
+        {!disableFilters && !disablePagination && (
+          <div className="space-y-1">
+            <h2 className="text-3xl font-bold tracking-tight">
+              {shortlistCandidateData.heading}
+            </h2>
+            <p className="text-muted-foreground">
+              {shortlistCandidateData.subHeading}
+            </p>
           </div>
-          <FilterPopover
-            open={isFilterOpen}
-            onOpenChange={setIsFilterOpen}
-            filters={filters}
-            onApplyFilters={(newFilters) => {
-              setFilters(newFilters);
-              setIsFilterOpen(false);
-            }}
-          >
-            <Button variant="secondary">
-              <Filter className="mr-2 h-4 w-4" /> Filter
+        )}
+
+        {/* Search and Filter Controls */}
+        {!disableFilters && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative">
+              <Input
+                placeholder={shortlistCandidateData.searchBar}
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="pl-10 w-full sm:w-64"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 bg-transparent"
+            >
+              <Filter className="h-4 w-4" />
+              Filter
             </Button>
-          </FilterPopover>
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* <Tabs value={tab} onValueChange={setTab} className="w-full"> */}
-      {/* <TabsList>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="deleted">Deleted</TabsTrigger>
-        </TabsList> */}
-
-      {/* <TabsContent value="active"> */}
-      <Card>
-        <CardContent className="p-0 overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="text-center">
-                <TableHead className="text-left pl-10">
-                  {shortlistCandidateData.tableColumn.tableColumnOne}
-                </TableHead>
-                <TableHead className="text-center">
-                  {shortlistCandidateData.tableColumn.tableColumnTwo}
-                </TableHead>
-                <TableHead className="text-center">
-                  {shortlistCandidateData.tableColumn.tableColumnThree}
-                </TableHead>
-                <TableHead className="text-center">
-                  {shortlistCandidateData.tableColumn.tableColumnFour}
-                </TableHead>
-                <TableHead className="text-center">
-                  {shortlistCandidateData.tableColumn.tableColumnFive}
-                </TableHead>
-                <TableHead className="text-center w-[120px]">
-                  {shortlistCandidateData.tableColumn.tableColumnSix}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>{renderCandidateRows(filteredCandidates)}</TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-      {/* </TabsContent> */}
-
-      {/* <TabsContent value="deleted">
+      {/* Statistics Cards */}
+      {!isLoading && allCandidates.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
-            <CardContent className="p-0 overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="text-center">
-                    <TableHead className="text-left pl-10">
-                      {shortlistCandidateData.tableColumn.tableColumnOne}
-                    </TableHead>
-                    <TableHead className="text-center">
-                      {shortlistCandidateData.tableColumn.tableColumnTwo}
-                    </TableHead>
-                    <TableHead className="text-center">
-                      {shortlistCandidateData.tableColumn.tableColumnThree}
-                    </TableHead>
-                    <TableHead className="text-center">
-                      {shortlistCandidateData.tableColumn.tableColumnFour}
-                    </TableHead>
-                    <TableHead className="text-center w-[120px]">
-                      {shortlistCandidateData.tableColumn.tableColumnFive}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>{renderCandidateRows(deletedCandidates)}</TableBody>
-              </Table>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium">Total Candidates</p>
+                  <p className="text-2xl font-bold">{allCandidates.length}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        </TabsContent> */}
-      {/* </Tabs> */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-green-600" />
+                <div>
+                  <p className="text-sm font-medium">Active</p>
+                  <p className="text-2xl font-bold">
+                    {
+                      allCandidates.filter(
+                        (c: ShortListedCandidate) => !c.isDeleted
+                      ).length
+                    }
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-red-600" />
+                <div>
+                  <p className="text-sm font-medium">Inactive</p>
+                  <p className="text-2xl font-bold">
+                    {
+                      allCandidates.filter(
+                        (c: ShortListedCandidate) => c.isDeleted
+                      ).length
+                    }
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="text-left pl-10 font-semibold">
+                    {shortlistCandidateData.tableColumn.tableColumnOne}
+                  </TableHead>
+                  <TableHead className="text-center font-semibold">
+                    {shortlistCandidateData.tableColumn.tableColumnTwo}
+                  </TableHead>
+                  <TableHead className="text-center font-semibold">
+                    {shortlistCandidateData.tableColumn.tableColumnThree}
+                  </TableHead>
+                  <TableHead className="text-center font-semibold">
+                    {shortlistCandidateData.tableColumn.tableColumnFour}
+                  </TableHead>
+                  <TableHead className="text-center font-semibold">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-center font-semibold w-[120px]">
+                    {shortlistCandidateData.tableColumn.tableColumnFive}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>{renderCandidateRows(allCandidates)}</TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {!isLoading && allCandidates.length > 0 && !disablePagination && (
+        <RenderPagination
+          lastPages={lastPages}
+          currentPage={currentPage}
+          handlePageChange={handlePageChange}
+          ITEMS_PER_PAGE={ITEMS_PER_PAGE}
+        />
+      )}
 
       <DeleteConfirmationModal
         open={!!candidateToDelete}
@@ -365,7 +446,11 @@ export function ShortlistedCandidatesPage() {
         loading={isDeleting}
       />
 
-      {renderPagination()}
+      <ViewCandidateDetailModal
+        open={!!candidateToView}
+        onOpenChange={() => setCandidateToView(null)}
+        candidate={candidateToView}
+      />
     </div>
   );
 }
