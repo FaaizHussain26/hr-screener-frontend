@@ -21,6 +21,13 @@ import { DeleteConfirmationModal } from "./modals/delete-confirmation";
 import { RenderPagination } from "./pagination/pagination";
 import { ViewCandidateDetailModal } from "./sheets/view-details";
 
+interface FilterState {
+  matchScoreMin: number | null;
+  matchScoreMax: number | null;
+  summaryMatched: boolean | null;
+  jobTitle: string;
+}
+
 export interface ShortListedCandidate {
   _id: string;
   applicant_name: string;
@@ -160,6 +167,14 @@ export function ShortlistedCandidatesPage({
     useState<ShortListedCandidate | null>(null);
   const [candidateToView, setCandidateToView] =
     useState<ShortListedCandidate | null>(null);
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    matchScoreMin: null,
+    matchScoreMax: null,
+    summaryMatched: null,
+    jobTitle: "",
+  });
 
   const {
     data: shortListedCandidates,

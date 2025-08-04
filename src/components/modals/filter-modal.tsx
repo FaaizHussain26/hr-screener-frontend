@@ -1,24 +1,23 @@
-"use client";
+import type React from "react";
+
 import { useState } from "react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@radix-ui/react-dialog";
-
-import { DialogFooter, DialogHeader } from "../ui/dialog";
-import { Label } from "@radix-ui/react-dropdown-menu";
-import { Input } from "../ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@radix-ui/react-select";
-import { Button } from "../ui/button";
+} from "@/components/ui/select";
+import { Label } from "@radix-ui/react-dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import { Filter } from "lucide-react";
+import { Input } from "../ui/input";
 
 interface FilterState {
   matchScoreMin: number | null;
@@ -31,19 +30,21 @@ interface FilterModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   filters: FilterState;
-  onApplyFilters: (filters: FilterState) => void;
+  onApplyFilters: (newFilters: FilterState) => void;
+  children?: React.ReactNode;
 }
 
-export function FilterModal({
-  open,
-  onOpenChange,
+export function FilterPopover({
   filters,
   onApplyFilters,
+  children,
 }: FilterModalProps) {
   const [localFilters, setLocalFilters] = useState<FilterState>(filters);
+  const [open, setOpen] = useState(false);
 
   const handleApply = () => {
     onApplyFilters(localFilters);
+    setOpen(false);
   };
 
   const handleReset = () => {
@@ -56,16 +57,36 @@ export function FilterModal({
     setLocalFilters(resetFilters);
   };
 
+  const hasActiveFilters =
+    localFilters.matchScoreMin !== null ||
+    localFilters.matchScoreMax !== null ||
+    localFilters.summaryMatched !== null ||
+    localFilters.jobTitle !== "";
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Filter Candidates</DialogTitle>
-          <DialogDescription>
-            Apply filters to narrow down your candidate search.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        {children || (
+          <Button variant="outline" size="sm">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+            {hasActiveFilters && (
+              <span className="ml-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-xs">
+                •
+              </span>
+            )}
+          </Button>
+        )}
+      </PopoverTrigger>
+      <PopoverContent className="w-80" align="end">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">Filter Candidates</h4>
+            <p className="text-sm text-muted-foreground">
+              Apply filters to narrow down your candidate search.
+            </p>
+          </div>
+
           {/* Match Score Range */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Match Score Range (%)</Label>
@@ -86,7 +107,7 @@ export function FilterModal({
                 }
                 className="w-20"
               />
-              <span className="text-muted-foreground">to</span>
+              <span className="text-muted-foreground text-sm">to</span>
               <Input
                 type="number"
                 placeholder="Max"
@@ -134,32 +155,25 @@ export function FilterModal({
               </SelectContent>
             </Select>
           </div>
-
-          {/* Job Title */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Job Title</Label>
-            <Input
-              placeholder="Enter job title..."
-              value={localFilters.jobTitle}
-              onChange={(e) =>
-                setLocalFilters({
-                  ...localFilters,
-                  jobTitle: e.target.value,
-                })
-              }
-            />
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReset}
+              className="flex-1 bg-transparent"
+            >
+              Reset
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleApply}
+              className="flex-1 bg-card-box"
+            >
+              Apply
+            </Button>
           </div>
         </div>
-        <DialogFooter className="flex gap-2">
-          <Button variant="outline" onClick={handleReset}>
-            Reset
-          </Button>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleApply}>Apply Filters</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </PopoverContent>
+    </Popover>
   );
 }
