@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import DashboardCard from "@/components/dashboard-card";
+import DashboardCard from "@/components/dashboard/dashboard-card";
 
 const data = {
   stats: [

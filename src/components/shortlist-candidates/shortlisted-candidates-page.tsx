@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type React from "react";
 import { useDeleteShortListedCandidates } from "@/api/hooks/useDeleteShortListedCandidate";
 import { useShortListedCandidates } from "@/api/hooks/useShortListedCandidates";
@@ -18,9 +17,10 @@ import {
 import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate-data";
 import { Eye, Filter, Search, Trash2, AlertCircle, Users } from "lucide-react";
 import { useState } from "react";
-import { DeleteConfirmationModal } from "./modals/delete-confirmation";
-import { RenderPagination } from "./pagination/pagination";
-import { ViewCandidateDetailModal } from "./sheets/view-details";
+import { DeleteConfirmationModal } from "../modals/delete-confirmation";
+import { RenderPagination } from "./pagination";
+import { ViewCandidateDetailModal } from "./view-details";
+import { FilterPopover, FilterState } from "../modals/filter-modal";
 
 export interface ShortListedCandidate {
   _id: string;
@@ -34,11 +34,11 @@ export interface ShortListedCandidate {
   experience: {
     years_found: number;
     match: "yes" | "no";
-    [key: string]: any;
+    [key: string]: unknown;
   };
-  bonus_matches: any[];
+  bonus_matches: unknown[];
   match_score: number;
-  jobs_matched: any[];
+  jobs_matched: unknown[];
   outlook_details?: {
     message_id: string;
     attachment_id: string;
@@ -95,7 +95,7 @@ function EmptyState({
   title,
   description,
   icon: Icon = Users,
-}: {
+}: /* eslint-disable @typescript-eslint/no-explicit-any */ {
   title: string;
   description: string;
   icon?: any;
@@ -120,7 +120,7 @@ function EmptyState({
 }
 
 // Error State Component
-function ErrorState({ error }: { error: Error }) {
+function ErrorState({ error }: { error: unknown }) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <Card className="border-destructive/50">
@@ -162,6 +162,14 @@ export function ShortlistedCandidatesPage({
   const [candidateToView, setCandidateToView] =
     useState<ShortListedCandidate | null>(null);
 
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    matchScoreMin: null,
+    matchScoreMax: null,
+    summaryMatched: null,
+    title: "",
+  });
+
   const {
     data: shortListedCandidates,
     isLoading,
@@ -186,6 +194,31 @@ export function ShortlistedCandidatesPage({
   };
 
   const allCandidates = shortListedCandidates?.data || [];
+
+  const filteredCandidates = allCandidates.filter(
+    (candidate: ShortListedCandidate) => {
+      const { matchScoreMin, matchScoreMax, summaryMatched, title } = filters;
+
+      const score = candidate.match_score;
+
+      const matchScoreMatch =
+        (matchScoreMin === null || score >= matchScoreMin) &&
+        (matchScoreMax === null || score <= matchScoreMax);
+
+      const summaryMatch =
+        summaryMatched === null ||
+        (summaryMatched
+          ? candidate.job_matched === "Yes"
+          : candidate.job_matched === "No");
+
+      const jobTitleMatch =
+        title === "" ||
+        candidate.applicant_name.toLowerCase().includes(title.toLowerCase());
+
+      return matchScoreMatch && summaryMatch && jobTitleMatch;
+    }
+  );
+
   const lastPages = shortListedCandidates?.last_page || 1;
 
   const handlePageChange = (page: number) => setCurrentPage(page);
@@ -322,13 +355,19 @@ export function ShortlistedCandidatesPage({
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 bg-transparent"
+            <FilterPopover
+              open={isFilterOpen}
+              onOpenChange={setIsFilterOpen}
+              filters={filters}
+              onApplyFilters={(newFilters) => {
+                setFilters(newFilters);
+                setIsFilterOpen(false);
+              }}
             >
-              <Filter className="h-4 w-4" />
-              Filter
-            </Button>
+              <Button variant="secondary">
+                <Filter className="mr-2 h-4 w-4" /> Filter
+              </Button>
+            </FilterPopover>
           </div>
         )}
       </div>
@@ -410,7 +449,7 @@ export function ShortlistedCandidatesPage({
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>{renderCandidateRows(allCandidates)}</TableBody>
+              <TableBody>{renderCandidateRows(filteredCandidates)}</TableBody>
             </Table>
           </div>
         </CardContent>

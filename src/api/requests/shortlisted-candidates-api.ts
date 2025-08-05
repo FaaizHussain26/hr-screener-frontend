@@ -8,7 +8,7 @@ export interface QueryParams {
   matchScoreMin?: number | null;
   matchScoreMax?: number | null;
   summaryMatched?: boolean | null;
-  jobTitle?: string;
+  title?: string;
 }
 
 export const getShortListedCandidates = async (params: QueryParams) => {

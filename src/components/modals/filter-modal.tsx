@@ -1,8 +1,15 @@
+"use client";
+
 import type React from "react";
 
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -10,27 +17,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@radix-ui/react-dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@radix-ui/react-popover";
+import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
-import { Input } from "../ui/input";
 
-interface FilterState {
+export type FilterState = {
+  title: string;
   matchScoreMin: number | null;
   matchScoreMax: number | null;
   summaryMatched: boolean | null;
-  jobTitle: string;
-}
+};
 
-interface FilterModalProps {
+interface FilterPopoverProps {
+  filters: FilterState;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  filters: FilterState;
-  onApplyFilters: (newFilters: FilterState) => void;
+  onApplyFilters: (filters: FilterState) => void;
   children?: React.ReactNode;
 }
 
@@ -38,7 +39,7 @@ export function FilterPopover({
   filters,
   onApplyFilters,
   children,
-}: FilterModalProps) {
+}: FilterPopoverProps) {
   const [localFilters, setLocalFilters] = useState<FilterState>(filters);
   const [open, setOpen] = useState(false);
 
@@ -52,7 +53,7 @@ export function FilterPopover({
       matchScoreMin: null,
       matchScoreMax: null,
       summaryMatched: null,
-      jobTitle: "",
+      title: "",
     };
     setLocalFilters(resetFilters);
   };
@@ -61,7 +62,7 @@ export function FilterPopover({
     localFilters.matchScoreMin !== null ||
     localFilters.matchScoreMax !== null ||
     localFilters.summaryMatched !== null ||
-    localFilters.jobTitle !== "";
+    localFilters.title !== "";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -155,6 +156,23 @@ export function FilterPopover({
               </SelectContent>
             </Select>
           </div>
+
+          {/* Job Title */}
+          {/* <div className="space-y-2">
+            <Label className="text-sm font-medium">Job Title</Label>
+            <Input
+              placeholder="Enter job title..."
+              value={localFilters.title}
+              onChange={(e) =>
+                setLocalFilters({
+                  ...localFilters,
+                  title: e.target.value,
+                })
+              }
+            />
+          </div> */}
+
+          {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
             <Button
               variant="outline"

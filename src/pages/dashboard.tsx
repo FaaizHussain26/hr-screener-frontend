@@ -1,100 +1,66 @@
-"use client";
+import { ApplicantDetailModal } from "@/components/dashboard/applicant-datails-modal";
+import { DashboardPage } from "@/components/dashboard/dashboard-page";
+import { useState } from "react";
 
-import { useDashboardStats } from "@/api/hooks/useDashboardStats";
-import { Activity, Bot, ChevronRight, Clock, Zap } from "lucide-react";
-import { useNavigate } from "react-router"; // ✅ Fixed
+interface Job {
+  id: string;
+  title: string;
+  jobId: string;
+  totalApplicants: number;
+  strongMatch: number;
+  potentialMatch: number;
+  irrelevant: number;
+  department: string;
+  location: string;
+  datePosted: string;
+}
 
-import DashboardCard from "@/components/dashboard-card";
-import { ShortlistedCandidatesPage } from "@/components/shortlisted-candidates-page";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+const Dashboard = () => {
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-export function DashboardPage() {
-  const navigate = useNavigate();
-  const { data: dashboardStats, isLoading, isError } = useDashboardStats();
+  const handleJobSelect = (job: Job) => {
+    setSelectedJob(job);
+    setIsModalOpen(true);
+  };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        Loading dashboard...
-      </div>
-    );
-  }
-  if (isError) {
-    return (
-      <div className="flex flex-1 items-center justify-center text-red-500">
-        Failed to load dashboard stats.
-      </div>
-    );
-  }
-
-  console.log(dashboardStats, "test");
-
-  const statsCards = [
-    {
-      title: "Total Candidates",
-      value: dashboardStats?.total_candidates ?? 0,
-      icon: Bot,
-    },
-    {
-      title: "Rejected Candidates",
-      value: dashboardStats?.total_rejected_candidates ?? 0,
-      icon: Activity,
-    },
-    {
-      title: "Accepted Candidates",
-      value: dashboardStats?.total_accepted_candidates ?? 0,
-      icon: Clock,
-    },
-    {
-      title: "Total Duplicate Candidates",
-      value: dashboardStats?.total_duplicate_candidates ?? 0,
-      icon: Zap,
-    },
-  ];
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedJob(null);
+  };
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 bg-card-back">
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statsCards.map((stat, index) => (
-          <DashboardCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            icon={stat.icon}
-          />
-        ))}
+    <div className="min-h-screen bg-background flex">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="border-b bg-background px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Open Jobs</h1>
+              <p className="text-muted-foreground">
+                Manage job postings and review applicants
+              </p>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 p-6 overflow-auto ">
+          <DashboardPage onJobSelect={handleJobSelect} />
+        </main>
       </div>
 
-      {/* Recent Agents Table */}
-      <Card className="py-6">
-        <CardHeader>
-          <div className="flex items-center justify-between -mb-6">
-            <div>
-              <CardTitle className="font-bold">
-                Shortlisted Candidates
-              </CardTitle>
-            </div>
-            <Button
-              className="flex items-center gap-0.5 text-sm bg-orange-100 rounded-full"
-              variant="outline"
-              onClick={() => navigate("/dashboard/shortlist-candidates")}
-            >
-              View All
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <ShortlistedCandidatesPage
-            limit={10}
-            disablePagination
-            disableFilters
-          />
-        </CardContent>
-      </Card>
+      {/* Applicant Detail Modal */}
+      <div>
+        <ApplicantDetailModal
+          job={selectedJob}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      </div>
     </div>
   );
-}
+};
+
+export default Dashboard;
