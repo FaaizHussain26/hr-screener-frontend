@@ -2,28 +2,23 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Users, CheckCircle, AlertCircle, XCircle, Eye, Loader2 } from "lucide-react"
 import { useGetUserWithJobs } from "@/api/hooks/useGetUserWithJobs"
+import { Job } from "@/pages/dashboard"
 
-interface Job {
-  _id: string
-  title: string
-  jobId: string
-  totalApplicants: number
-  strongMatch: number
-  potentialMatch: number
-  irrelevant: number
-  department: string
-  location: string
-  datePosted: string
-}
 
 interface JobListProps {
   onJobSelect?: (job: Job) => void
+}
+
+function convertUnderscoreToTitle(input: string): string {
+  return input
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }
 
 export const DashboardPage = ({ onJobSelect }: JobListProps) => {
@@ -110,21 +105,15 @@ export const DashboardPage = ({ onJobSelect }: JobListProps) => {
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors">{job._id?.replace("_", " ")?.toUpperCase() || ""}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {job.jobId} • {job.department} • {job.location}
-                  </p>
+                  <CardTitle className="text-lg group-hover:text-primary transition-colors">{convertUnderscoreToTitle(job?._id) || "Not Found"}</CardTitle>
                 </div>
-
               </div>
             </CardHeader>
 
             <CardContent className="space-y-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Users className="h-4 w-4" />
-                <span>{job.count} total applicants</span>
-                <span>•</span>
-                <span>Posted {new Date(job.datePosted).toLocaleDateString()}</span>
+                <span>{job.count} Total applicants</span>
               </div>
 
               <div className="grid grid-cols-3 gap-3">

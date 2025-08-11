@@ -2,18 +2,20 @@ import { ApplicantDetailModal } from "@/components/dashboard/applicant-datails-m
 import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { useState } from "react";
 
-interface Job {
-  id: string;
-  title: string;
-  jobId: string;
-  totalApplicants: number;
-  strongMatch: number;
-  potentialMatch: number;
-  irrelevant: number;
-  department: string;
-  location: string;
-  datePosted: string;
+export interface Job {
+  _id: string
+  count: number
+  title: string
+  jobId: string
+  totalApplicants: number
+  strongMatch: number
+  potentialMatch: number
+  irrelevant: number
+  department: string
+  location: string
+  datePosted: string
 }
+
 
 const Dashboard = () => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);

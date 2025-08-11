@@ -23,19 +23,7 @@ import {
   DialogContent,
   DialogHeader,
 } from "../ui/dialog-applicant-detail-model";
-
-interface Job {
-  id: string;
-  title: string;
-  jobId: string;
-  totalApplicants: number;
-  strongMatch: number;
-  potentialMatch: number;
-  irrelevant: number;
-  department: string;
-  location: string;
-  datePosted: string;
-}
+import { Job } from "@/pages/dashboard";
 
 interface Applicant {
   id: string;
