@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate-data";
+import { shortlistCandidateData } from "@/utils/content-data/shortlist-candidate-data";
 import { Eye, Filter, Search, Trash2, AlertCircle, Users } from "lucide-react";
 import { useState } from "react";
 import { DeleteConfirmationModal } from "../modals/delete-confirmation";

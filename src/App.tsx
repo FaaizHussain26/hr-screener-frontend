@@ -1,6 +1,5 @@
 import { BrowserRouter } from "react-router";
 import { Toaster } from "sonner";
-import { ThemeProvider } from "./components/chatbot/theme-provider";
 import "./index.css";
 import Main from "./pages";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,13 +17,10 @@ const queryClient =
 function App() {
   return (
     <BrowserRouter>
-      <ThemeProvider defaultTheme="light" storageKey="scitech-theme">
-        <QueryClientProvider client={queryClient}>
-          <Main />
-          <Toaster />
-          {/* <ChatWidget /> */}
-        </QueryClientProvider>
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <Main />
+        <Toaster />
+      </QueryClientProvider>
     </BrowserRouter>
   );
 }

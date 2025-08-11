@@ -36,7 +36,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useCallback } from "react";
-import { dashboardLayout } from "@/utils/Content-Data/dashboard-layout-data";
+import { dashboardLayout } from "@/utils/content-data/dashboard-layout-data";
 import useAuth from "@/hooks/useAuth";
 
 export function DashboardLayout() {

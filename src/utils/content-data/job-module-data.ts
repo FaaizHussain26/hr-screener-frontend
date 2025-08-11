@@ -1,5 +1,5 @@
 export const jobModulePageData = {
-  heading: "Job Modules",
+  heading: "Job ",
   subHeading: "Manage and monitor all your jobs",
   button: "Create New Job",
   card: {
