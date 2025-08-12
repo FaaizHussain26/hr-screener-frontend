@@ -2,8 +2,10 @@ import { ApplicantDetailModal } from "@/components/dashboard/applicant-datails-m
 import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { useState } from "react";
 
-interface Job {
+export interface Job {
   id: string;
+  _id: string;
+  count: number;
   title: string;
   jobId: string;
   totalApplicants: number;

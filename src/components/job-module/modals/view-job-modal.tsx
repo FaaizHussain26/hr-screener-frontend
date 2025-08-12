@@ -32,7 +32,6 @@ import {
 import { useState, useEffect } from "react";
 import { useUpdateJob } from "@/api/hooks/job-module/useJobs";
 import type { Job } from "@/api/requests/job-module-api";
-import SkillManager from "./skill-manager";
 
 interface ViewJobModalProps {
   open: boolean;
@@ -528,7 +527,6 @@ export function ViewJobModal({
                   <Save className="w-4 h-4" />
                   {updateJobMutation.isPending ? "Saving..." : "Save Changes"}
                 </Button>
-
                 <Button
                   size="sm"
                   variant="outline"
