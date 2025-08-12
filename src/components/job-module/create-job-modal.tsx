@@ -9,13 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// ...existing code...
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,13 +21,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Save, X } from "lucide-react";
-import { CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Save } from "lucide-react";
 import { useCreateJob } from "@/api/hooks/job-module/useJobs";
 import { useCreateSkill, useSkills } from "@/api/hooks/job-module/useSkills";
 import { useDebounce } from "use-debounce";
-import { Skill } from "@/api/requests/job-module-api";
+// ...existing code...
 
 const addJobSchema = z.object({
   title: z.string().min(2, "Job title is required"),
@@ -106,12 +98,6 @@ export const CreateJobModal = ({
       shouldValidate: true,
     });
     setSkillInput("");
-  };
-
-  const handleAddCustomSkill = async () => {
-    if (skillInput.trim()) {
-      await handleAddSkill(skillInput);
-    }
   };
 
   const handleRemoveSkill = (skill: string) => {
@@ -215,85 +201,66 @@ export const CreateJobModal = ({
               name="skills"
               render={() => (
                 <FormItem>
-                  <FormLabel>Required Skills</FormLabel>
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <Select
-                        onValueChange={(value) => {
-                          if (value && !skills.includes(value)) {
-                            handleAddSkill(value);
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Select a skill..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {filteredSuggestions.length > 0 ? (
-                            filteredSuggestions.map((skill: Skill) => (
-                              <SelectItem
-                                key={skill._id}
-                                value={skill.technical_skill}
-                              >
-                                {skill.technical_skill}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            // Removed the SelectItem with value=""
-                            // You can optionally add a message here if needed, but it won't be selectable
-                            <div className="px-4 py-2 text-sm text-muted-foreground">
-                              No skills available
-                            </div>
-                          )}
-                        </SelectContent>
-                      </Select>
+                  <FormLabel>Skills</FormLabel>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {skills.map((skill: string) => (
+                        <span
+                          key={skill}
+                          className="inline-flex items-center outline-1 text-black rounded-full px-3 py-1 text-sm font-medium shadow-sm"
+                        >
+                          {skill}
+                          <button
+                            type="button"
+                            className="ml-2 text-gray-400 hover:text-black focus:outline-none"
+                            onClick={() => handleRemoveSkill(skill)}
+                            aria-label={`Remove ${skill}`}
+                          >
+                            &times;
+                          </button>
+                        </span>
+                      ))}
                     </div>
-
-                    {/* Add custom skill input */}
-                    <div className="flex gap-2">
+                    <div className="relative">
                       <Input
-                        placeholder="Or add a new skill..."
+                        placeholder="Add skill..."
                         value={skillInput}
                         onChange={(e) => setSkillInput(e.target.value)}
-                        onKeyDown={(e) => {
+                        onKeyDown={async (e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
-                            handleAddCustomSkill();
+                            await handleAddSkill(skillInput);
                           }
                         }}
+                        className="pr-24"
+                        autoComplete="off"
                       />
                       <Button
                         type="button"
-                        onClick={handleAddCustomSkill}
-                        disabled={
-                          !skillInput.trim() || createSkillMutation.isPending
-                        }
+                        size="sm"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 bg-black text-white px-3 py-1 rounded-sm  "
+                        onClick={async () => await handleAddSkill(skillInput)}
+                        disabled={!skillInput.trim()}
                       >
-                        {createSkillMutation.isPending ? "Adding..." : "Add"}
+                        Add
                       </Button>
+                      {filteredSuggestions.length > 0 && skillInput.trim() && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-40 overflow-auto">
+                          {filteredSuggestions.map((s) => (
+                            <div
+                              key={s.technical_skill}
+                              className="px-4 py-2 cursor-pointer hover:bg-orange-50"
+                              onClick={async () =>
+                                await handleAddSkill(s.technical_skill)
+                              }
+                            >
+                              {s.technical_skill}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
-
-                  {/* Selected Skills */}
-                  {skills.length > 0 && (
-                    <CardContent className="mt-3 border rounded p-2 max-h-32 overflow-y-auto">
-                      <div className="flex flex-wrap gap-2">
-                        {skills.map((skill, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="flex items-center gap-1"
-                          >
-                            {skill}
-                            <X
-                              className="w-3 h-3 cursor-pointer hover:text-red-500"
-                              onClick={() => handleRemoveSkill(skill)}
-                            />
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  )}
                   <FormMessage />
                 </FormItem>
               )}

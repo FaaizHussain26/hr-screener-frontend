@@ -32,6 +32,7 @@ import {
 import { useState, useEffect } from "react";
 import { useUpdateJob } from "@/api/hooks/job-module/useJobs";
 import type { Job } from "@/api/requests/job-module-api";
+import SkillManager from "./skill-manager";
 
 interface ViewJobModalProps {
   open: boolean;
@@ -517,13 +518,17 @@ export function ViewJobModal({
               <>
                 <Button
                   size="sm"
-                  onClick={handleSave}
+                  onClick={async () => {
+                    await handleSave();
+                    onOpenChange(false);
+                  }}
                   disabled={updateJobMutation.isPending}
                   className="flex items-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   {updateJobMutation.isPending ? "Saving..." : "Save Changes"}
                 </Button>
+
                 <Button
                   size="sm"
                   variant="outline"

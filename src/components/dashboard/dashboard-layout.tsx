@@ -7,6 +7,8 @@ import {
   Bell,
   User,
   ChevronDown,
+  Briefcase,
+  FileText,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -62,7 +64,12 @@ export function DashboardLayout() {
       {
         title: dashboardLayout.sideBar.sideBarSix,
         url: "/dashboard/job-module",
-        icon: Bot,
+        icon: Briefcase,
+      },
+      {
+        title: dashboardLayout.sideBar.sideBarSeven,
+        url: "/dashboard/resume-analyzer",
+        icon: FileText,
       },
       {
         title: dashboardLayout.sideBar.sideBarThree,

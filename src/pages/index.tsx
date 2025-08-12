@@ -2,7 +2,6 @@ import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import AuthMiddleware from "@/components/middleware/auth-middleware";
 import GuestMiddleware from "@/components/middleware/guest-middleware";
 import { Route, Routes } from "react-router";
-import { AgentDetailsPage } from "./agent-details";
 import { AnalyticsPage } from "./analytics";
 
 import { ForgotPassword } from "./forgot-password";
@@ -14,6 +13,8 @@ import JobModule from "./job-module";
 import { UsersPage } from "./users";
 import ShorlistCandidates from "./shortlisted-candidates";
 import Dashboard from "./dashboard";
+import { ResumeAnalyzer } from "./resume-analyzer";
+import ResumeAnalysisPage from "./resume-analysis-page";
 
 export default function Main() {
   return (
@@ -75,9 +76,12 @@ export default function Main() {
           }
         />
         <Route path="shortlist-candidates" element={<ShorlistCandidates />} />
-        <Route path="analytics" element={<AnalyticsPage />} />
-        <Route path="agents/:id" element={<AgentDetailsPage />} />
         <Route path="job-module" element={<JobModule />} />
+        <Route path="resume-analyzer" element={<ResumeAnalyzer />} />
+        <Route path="resume-analysis" element={<ResumeAnalysisPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
+        {/* <Route path="agents/:id" element={<AgentDetailsPage />} /> */}
+
         <Route path="users" element={<UsersPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

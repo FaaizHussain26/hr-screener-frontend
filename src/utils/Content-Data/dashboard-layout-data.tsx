@@ -11,5 +11,6 @@ export const dashboardLayout = {
     sideBarFour: "Users",
     sideBarFive: "Settings",
     sideBarSix: "Job Module",
+    sideBarSeven: "Resume Analyzer",
   },
 };

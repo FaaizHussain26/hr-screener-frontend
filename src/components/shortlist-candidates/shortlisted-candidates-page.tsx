@@ -333,14 +333,25 @@ export function ShortlistedCandidatesPage({
       {/* Header Section */}
       <div className="flex justify-between items-start flex-wrap gap-4">
         {!disableFilters && !disablePagination && (
-          <div className="space-y-1">
-            <h2 className="text-3xl font-bold tracking-tight">
-              {shortlistCandidateData.heading}
-            </h2>
-            <p className="text-muted-foreground">
-              {shortlistCandidateData.subHeading}
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">
+                {shortlistCandidateData.heading}
+              </h1>
+              <p className="text-muted-foreground">
+                {shortlistCandidateData.subHeading}
+              </p>
+            </div>
           </div>
+
+          // <div className="space-y-1">
+          //   <h2 className="text-3xl font-bold tracking-tight">
+          //     {shortlistCandidateData.heading}
+          //   </h2>
+          //   <p className="text-muted-foreground">
+          //     {shortlistCandidateData.subHeading}
+          //   </p>
+          // </div>
         )}
 
         {/* Search and Filter Controls */}
