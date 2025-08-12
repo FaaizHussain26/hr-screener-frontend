@@ -25,8 +25,9 @@ export const deleteShortListedCandidate = async (itemId: string) => {
   return response.data;
 };
 
-
 export const getUserWithJobs = async () => {
-  const response = await axiosInstance.get("/shortlisted-candidates/users-with-jobs");
+  const response = await axiosInstance.get(
+    "/shortlisted-candidates/users-with-jobs"
+  );
   return response.data;
-}
+};

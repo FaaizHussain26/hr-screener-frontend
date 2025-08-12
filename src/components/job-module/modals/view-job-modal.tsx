@@ -517,7 +517,10 @@ export function ViewJobModal({
               <>
                 <Button
                   size="sm"
-                  onClick={handleSave}
+                  onClick={async () => {
+                    await handleSave();
+                    onOpenChange(false);
+                  }}
                   disabled={updateJobMutation.isPending}
                   className="flex items-center gap-2"
                 >

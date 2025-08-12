@@ -25,7 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { jobModulePageData } from "@/utils/content-data/job-module-data";
+import { jobModulePageData } from "@/utils/Content-Data/job-module-data";
 import { CreateJobModal } from "@/components/job-module/create-job-modal";
 import {
   useDeleteJob,

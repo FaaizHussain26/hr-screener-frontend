@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type React from "react";
 import { useDeleteShortListedCandidates } from "@/api/hooks/useDeleteShortListedCandidate";
 import { useShortListedCandidates } from "@/api/hooks/useShortListedCandidates";
@@ -17,10 +18,9 @@ import {
 import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate-data";
 import { Eye, Filter, Search, Trash2, AlertCircle, Users } from "lucide-react";
 import { useState } from "react";
-import { DeleteConfirmationModal } from "../modals/delete-confirmation";
-import { RenderPagination } from "./pagination";
-import { ViewCandidateDetailModal } from "./view-details";
-import { FilterPopover, FilterState } from "../modals/filter-modal";
+import { DeleteConfirmationModal } from "./modals/delete-confirmation";
+import { RenderPagination } from "./pagination/pagination";
+import { ViewCandidateDetailModal } from "./sheets/view-details";
 
 export interface ShortListedCandidate {
   _id: string;
@@ -34,11 +34,11 @@ export interface ShortListedCandidate {
   experience: {
     years_found: number;
     match: "yes" | "no";
-    [key: string]: unknown;
+    [key: string]: any;
   };
-  bonus_matches: unknown[];
+  bonus_matches: any[];
   match_score: number;
-  jobs_matched: unknown[];
+  jobs_matched: any[];
   outlook_details?: {
     message_id: string;
     attachment_id: string;
@@ -95,7 +95,7 @@ function EmptyState({
   title,
   description,
   icon: Icon = Users,
-}: /* eslint-disable @typescript-eslint/no-explicit-any */ {
+}: {
   title: string;
   description: string;
   icon?: any;
@@ -120,7 +120,7 @@ function EmptyState({
 }
 
 // Error State Component
-function ErrorState({ error }: { error: unknown }) {
+function ErrorState({ error }: { error: Error }) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <Card className="border-destructive/50">
@@ -162,14 +162,6 @@ export function ShortlistedCandidatesPage({
   const [candidateToView, setCandidateToView] =
     useState<ShortListedCandidate | null>(null);
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({
-    matchScoreMin: null,
-    matchScoreMax: null,
-    summaryMatched: null,
-    title: "",
-  });
-
   const {
     data: shortListedCandidates,
     isLoading,
@@ -194,31 +186,6 @@ export function ShortlistedCandidatesPage({
   };
 
   const allCandidates = shortListedCandidates?.data || [];
-
-  const filteredCandidates = allCandidates.filter(
-    (candidate: ShortListedCandidate) => {
-      const { matchScoreMin, matchScoreMax, summaryMatched, title } = filters;
-
-      const score = candidate.match_score;
-
-      const matchScoreMatch =
-        (matchScoreMin === null || score >= matchScoreMin) &&
-        (matchScoreMax === null || score <= matchScoreMax);
-
-      const summaryMatch =
-        summaryMatched === null ||
-        (summaryMatched
-          ? candidate.job_matched === "Yes"
-          : candidate.job_matched === "No");
-
-      const jobTitleMatch =
-        title === "" ||
-        candidate.applicant_name.toLowerCase().includes(title.toLowerCase());
-
-      return matchScoreMatch && summaryMatch && jobTitleMatch;
-    }
-  );
-
   const lastPages = shortListedCandidates?.last_page || 1;
 
   const handlePageChange = (page: number) => setCurrentPage(page);
@@ -333,25 +300,14 @@ export function ShortlistedCandidatesPage({
       {/* Header Section */}
       <div className="flex justify-between items-start flex-wrap gap-4">
         {!disableFilters && !disablePagination && (
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">
-                {shortlistCandidateData.heading}
-              </h1>
-              <p className="text-muted-foreground">
-                {shortlistCandidateData.subHeading}
-              </p>
-            </div>
+          <div className="space-y-1">
+            <h2 className="text-3xl font-bold tracking-tight">
+              {shortlistCandidateData.heading}
+            </h2>
+            <p className="text-muted-foreground">
+              {shortlistCandidateData.subHeading}
+            </p>
           </div>
-
-          // <div className="space-y-1">
-          //   <h2 className="text-3xl font-bold tracking-tight">
-          //     {shortlistCandidateData.heading}
-          //   </h2>
-          //   <p className="text-muted-foreground">
-          //     {shortlistCandidateData.subHeading}
-          //   </p>
-          // </div>
         )}
 
         {/* Search and Filter Controls */}
@@ -366,19 +322,13 @@ export function ShortlistedCandidatesPage({
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
-            <FilterPopover
-              open={isFilterOpen}
-              onOpenChange={setIsFilterOpen}
-              filters={filters}
-              onApplyFilters={(newFilters) => {
-                setFilters(newFilters);
-                setIsFilterOpen(false);
-              }}
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 bg-transparent"
             >
-              <Button variant="secondary">
-                <Filter className="mr-2 h-4 w-4" /> Filter
-              </Button>
-            </FilterPopover>
+              <Filter className="h-4 w-4" />
+              Filter
+            </Button>
           </div>
         )}
       </div>
@@ -460,7 +410,7 @@ export function ShortlistedCandidatesPage({
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>{renderCandidateRows(filteredCandidates)}</TableBody>
+              <TableBody>{renderCandidateRows(allCandidates)}</TableBody>
             </Table>
           </div>
         </CardContent>

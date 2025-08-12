@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { usersData } from "@/utils/content-data/users-data";
+import { usersData } from "@/utils/Content-Data/users-data";
 import { useUsers } from "@/api/hooks/useUsers";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 

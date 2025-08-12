@@ -3,19 +3,19 @@ import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { useState } from "react";
 
 export interface Job {
-  _id: string
-  count: number
-  title: string
-  jobId: string
-  totalApplicants: number
-  strongMatch: number
-  potentialMatch: number
-  irrelevant: number
-  department: string
-  location: string
-  datePosted: string
+  id: string;
+  _id: string;
+  count: number;
+  title: string;
+  jobId: string;
+  totalApplicants: number;
+  strongMatch: number;
+  potentialMatch: number;
+  irrelevant: number;
+  department: string;
+  location: string;
+  datePosted: string;
 }
-
 
 const Dashboard = () => {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -36,7 +36,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="border-b bg-background px-6 py-4">
+        <header className="bg-background px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Open Jobs</h1>
