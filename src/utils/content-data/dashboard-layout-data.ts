@@ -3,14 +3,14 @@ export const dashboardLayout = {
     heading: "Welcome to HR Screen App",
     headerAddButton: "New Agent",
   },
-  image: "https://www.w3.org/Icons/SVG/svg-logo-h.svg",
+  image: "/assets/dax-logo-black.webp",
   sideBar: {
     sideBarOne: "Dashboard",
     sideBarTwo: "Shortlist Candidates",
     sideBarThree: "Analytics",
     sideBarFour: "Users",
     sideBarFive: "Settings",
-    sideBarSix: "Job",
+    sideBarSix: "Jobs",
     sideBarSeven: "Resume Analyzer",
   },
 };

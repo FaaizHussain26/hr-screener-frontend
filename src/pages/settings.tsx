@@ -16,7 +16,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-6 p-6">
       <ProfilePage initialData={data} />
     </div>
   );

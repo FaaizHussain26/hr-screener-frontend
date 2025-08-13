@@ -1,4 +1,4 @@
-import { MoreHorizontal, Shield, UserPlus, Users } from "lucide-react";
+import { MoreHorizontal, Shield, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,6 +24,7 @@ import {
 import { usersData } from "@/utils/Content-Data/users-data";
 import { useUsers } from "@/api/hooks/useUsers";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import DashboardCard from "@/components/dashboard-card";
 
 interface User {
   _id: string;
@@ -62,8 +63,28 @@ export function UsersPage() {
     );
   }
 
+  const cardData = {
+    stats: [
+      {
+        title: usersData.cards.cardOne,
+        value: users.length,
+        icon: Users,
+      },
+      {
+        title: usersData.cards.cardTwo,
+        value: users.filter((u: User) => u.isActive).length,
+        icon: Users,
+      },
+      {
+        title: usersData.cards.cardThree,
+        value: users.filter((u: User) => u.role === "admin").length,
+        icon: Shield,
+      },
+    ],
+  };
+
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
+    <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
@@ -71,14 +92,18 @@ export function UsersPage() {
           </h2>
           <p className="text-muted-foreground">{usersData.subHeading}</p>
         </div>
-        <Button>
-          <UserPlus className="mr-2 h-4 w-4" />
-          {usersData.button}
-        </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {cardData.stats.map((stat, index) => (
+          <DashboardCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+          />
+        ))}
+        {/* <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               {usersData.cards.cardOne}
@@ -119,7 +144,7 @@ export function UsersPage() {
               System administrators
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       <Card>

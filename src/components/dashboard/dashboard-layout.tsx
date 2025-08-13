@@ -1,14 +1,13 @@
 import { Outlet, useLocation, useNavigate } from "react-router";
 import {
-  Bot,
   Settings,
   Users,
   BarChart3,
   Bell,
-  User,
   ChevronDown,
   Briefcase,
   FileText,
+  LogOut,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -59,7 +58,7 @@ export function DashboardLayout() {
       {
         title: dashboardLayout.sideBar.sideBarTwo,
         url: "/dashboard/shortlist-candidates",
-        icon: Bot,
+        icon: Users,
       },
       {
         title: dashboardLayout.sideBar.sideBarSix,
@@ -71,11 +70,7 @@ export function DashboardLayout() {
         url: "/dashboard/resume-analyzer",
         icon: FileText,
       },
-      {
-        title: dashboardLayout.sideBar.sideBarThree,
-        url: "/dashboard/analytics",
-        icon: BarChart3,
-      },
+
       {
         title: dashboardLayout.sideBar.sideBarFour,
         url: "/dashboard/users",
@@ -138,39 +133,28 @@ export function DashboardLayout() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 size="lg"
-                className="flex items-center justify-center pointer-events-none"
+                className="flex flex-col items-center justify-center bg-transparent border-none shadow-none cursor-pointer hover:bg-transparent hover:shadow-none active:bg-transparent"
                 asChild
               >
-                <button
-                  onClick={() => handleNavigation("/dashboard")}
-                  className="flex items-center gap-2 w-full"
+                <div
+                  className="flex flex-col items-center justify-center rounded-2xl bg-white shadow-lg py-6 px-2 mt-4 mb-1 mx-auto w-full active:bg-transparent transition-colors cursor-pointer"
+                  onClick={() => handleNavigation("/dashboard/home")}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ")
+                      handleNavigation("/dashboard");
+                  }}
                 >
-                  <div className="flex aspect-square size-17 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground bg-transparent ">
-                    <img src={dashboardLayout.image} className=" " />
-                  </div>
-                  {/* <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold">AI Agent Hub</span>
-                    <span className="text-xs">Management Platform</span>
-                  </div> */}
-                </button>
+                  <img
+                    src={dashboardLayout.image}
+                    alt="DAX Logo"
+                    className="object-contain w-22 h-22 max-w-full max-h-32 mx-auto"
+                  />
+                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
-          {/* <form>
-            <SidebarGroup className="py-0">
-              <SidebarGroupContent className="relative">
-                <Label htmlFor="search" className="sr-only">
-                  Search
-                </Label>
-                <SidebarInput
-                  id="search"
-                  placeholder="Search agents..."
-                  className="pl-8"
-                />
-                <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </form> */}
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
@@ -192,104 +176,16 @@ export function DashboardLayout() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          {/* <SidebarGroup>
-            <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => handleNavigation("/agents/create")}
-                    >
-                      <Plus className="size-4" />
-                      Create Agent
-                    </Button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup> */}
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton
-                    size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground pointer-events-none mb-6  bg-sidebar-accent-active"
-                  >
-                    <Avatar className="h-10 w-10 rounded-full ">
-                      <AvatarImage
-                        src={data.user.avatar || "/placeholder.svg"}
-                        alt={data.user.name}
-                      />
-                      <AvatarFallback className="rounded-lg bg-card-box">
-                        {getInitials(data.user.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight ">
-                      <span className="truncate font-semibold">
-                        {data.user.name}
-                      </span>
-                      <span className="truncate text-xs">
-                        {data.user.email}
-                      </span>
-                    </div>
-                    <ChevronDown className="ml-auto size-4" />
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                  side="bottom"
-                  align="end"
-                  sideOffset={4}
-                >
-                  <DropdownMenuLabel className="p-0 font-normal">
-                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                      <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage
-                          src={data.user.avatar || "/placeholder.svg"}
-                          alt={data.user.name}
-                        />
-                        <AvatarFallback className="rounded-lg">
-                          {getInitials(data.user.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-semibold">
-                          {data.user.name}
-                        </span>
-                        <span className="truncate text-xs">
-                          {data.user.email}
-                        </span>
-                      </div>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    Account
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleNavigation("/settings")}
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>Log out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
+            <SidebarMenuItem></SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 mt-2">
+        <header className="flex h-18 shrink-0 items-center gap-2 border-b px-4  bg-white">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <div className="flex flex-1 items-center justify-between">
@@ -297,29 +193,83 @@ export function DashboardLayout() {
               <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
             </div>
             <div className="flex items-center gap-2">
-              {/* <Button
-                variant="outline"
-                size="lg"
-                className="bg-blue-900 text-white rounded-lg"
-                onClick={() => handleNavigation("/agents/create")}
-              >
-                <Plus className="size-4 mr-2" />
-                {dashboardLayout.header.headerAddButton}
-              </Button> */}
-              <div className="bg-sidebar-accent-foreground rounded-full">
+              <div className="bg-sidebar-accent-foreground rounded-full flex items-center">
                 <Button variant="ghost" size="sm">
                   <Bell fill="currentColor" className="size-5 text-card-box" />
                 </Button>
               </div>
-              <div className="bg-sidebar-accent-foreground rounded-full">
-                <Button
-                  size="sm"
-                  type="button"
-                  variant="outline"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
+              <div className="bg-sidebar-accent-foreground rounded-full flex items-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SidebarMenuButton
+                      size="lg"
+                      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground bg-sidebar-accent-active px-2 py-1 bg-transparent"
+                    >
+                      <Avatar className="h-10 w-10 rounded-full ">
+                        <AvatarImage
+                          src={data.user.avatar || "/placeholder.svg"}
+                          alt={data.user.name}
+                        />
+                        <AvatarFallback className="rounded-lg bg-card-box">
+                          {getInitials(data.user.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="grid flex-1 text-left text-sm leading-tight ml-2">
+                        <span className="truncate font-semibold">
+                          {data.user.name}
+                        </span>
+                        <span className="truncate text-xs">
+                          {data.user.email}
+                        </span>
+                      </div>
+                      <ChevronDown className="ml-2 size-4" />
+                    </SidebarMenuButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                    side="bottom"
+                    align="end"
+                    sideOffset={4}
+                  >
+                    <DropdownMenuLabel className="p-0 font-normal">
+                      <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                        <Avatar className="h-8 w-8 rounded-lg">
+                          <AvatarImage
+                            src={data.user.avatar || "/placeholder.svg"}
+                            alt={data.user.name}
+                          />
+                          <AvatarFallback className="rounded-lg">
+                            {getInitials(data.user.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="grid flex-1 text-left text-sm leading-tight">
+                          <span className="truncate font-semibold">
+                            {data.user.name}
+                          </span>
+                          <span className="truncate text-xs">
+                            {data.user.email}
+                          </span>
+                        </div>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onClick={() => handleNavigation("/dashboard/settings")}
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-black"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>

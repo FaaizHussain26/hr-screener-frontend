@@ -79,8 +79,6 @@ export default function Main() {
         <Route path="job-module" element={<JobModule />} />
         <Route path="resume-analyzer" element={<ResumeAnalyzer />} />
         <Route path="resume-analysis" element={<ResumeAnalysisPage />} />
-        <Route path="analytics" element={<AnalyticsPage />} />
-        {/* <Route path="agents/:id" element={<AgentDetailsPage />} /> */}
 
         <Route path="users" element={<UsersPage />} />
         <Route path="settings" element={<SettingsPage />} />

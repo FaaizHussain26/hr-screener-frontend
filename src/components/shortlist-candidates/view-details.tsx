@@ -43,6 +43,13 @@ const getBadgeClassName = (score: number): string => {
   return "bg-red-500 text-white hover:bg-red-600";
 };
 
+const totalScoreClassName = (score: number): string => {
+  if (score >= 90) return "text-green-800  hover:text-green-900";
+  if (score >= 80) return "text-green-400  hover:text-green-500";
+  if (score >= 70) return "text-yellow-400  hover:text-yellow-500";
+  return "text-red-500  hover:text-red-600";
+};
+
 const getScoreLabel = (score: number): string => {
   if (score >= 90) return "Excellent Match";
   if (score >= 80) return "Good Match";
@@ -76,7 +83,7 @@ function InfoRow({
   value,
   isEmail = false,
 }: {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   value: string;
   isEmail?: boolean;
@@ -101,14 +108,14 @@ function InfoRow({
 
 function PersonalInfoCard({ candidate }: { candidate: ShortListedCandidate }) {
   return (
-    <Card className="h-fi m-5">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <User className="w-5 h-5" />
+    <Card className="shadow-lg rounded-2xl border border-gray-100 bg-white m-4">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
+          <User className="w-6 h-6 text-primary" />
           Personal Information
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-3 px-4 pb-4">
         <InfoRow icon={User} label="Name" value={candidate.applicant_name} />
         <InfoRow
           icon={Mail}
@@ -127,12 +134,12 @@ function PersonalInfoCard({ candidate }: { candidate: ShortListedCandidate }) {
           <>
             <Separator className="my-4" />
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <FileText className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium text-sm">Summary:</span>
+              <div className="flex items-center gap-2 mb-2">
+                <FileText className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-base">Summary:</span>
               </div>
-              <div className="bg-muted/50 p-4 rounded-lg border-l-4 border-primary">
-                <p className="text-sm leading-relaxed">
+              <div className="bg-gray-50 p-4 rounded-xl border-l-4 border-primary">
+                <p className="text-gray-700 text-base leading-relaxed">
                   {candidate.applicant_summary}
                 </p>
               </div>
@@ -151,40 +158,40 @@ function MatchAnalysisCard({ candidate }: { candidate: ShortListedCandidate }) {
   );
 
   return (
-    <Card className="h-fit m-5">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Star className="w-5 h-5" />
+    <Card className="shadow-lg rounded-2xl border border-gray-100 bg-white m-4">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
+          <Star className="w-6 h-6 text-yellow-500" />
           Match Analysis
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center space-y-2">
-            <div className="font-medium text-sm text-muted-foreground">
+            <div className="font-semibold text-sm text-gray-500">
               Overall Score
             </div>
             <div className="space-y-1">
               <Badge
                 className={`${getBadgeClassName(
                   candidate.match_score
-                )} text-lg px-3 py-1`}
+                )} text-lg px-4 py-2 rounded-xl shadow`}
               >
                 {candidate.match_score}%
               </Badge>
-              <div className="text-xs text-muted-foreground">{scoreLabel}</div>
+              <div className="text-xs text-gray-400 font-medium">
+                {scoreLabel}
+              </div>
             </div>
           </div>
 
           <div className="text-center space-y-2">
-            <div className="font-medium text-sm text-muted-foreground">
-              Job Match
-            </div>
+            <div className="font-semibold text-sm text-gray-500">Job Match</div>
             <MatchBadge match={candidate.job_matched} />
           </div>
 
           <div className="text-center space-y-2">
-            <div className="font-medium text-sm text-muted-foreground">
+            <div className="font-semibold text-sm text-gray-500">
               Summary Match
             </div>
             <MatchBadge match={candidate.summary_match} />
@@ -197,26 +204,30 @@ function MatchAnalysisCard({ candidate }: { candidate: ShortListedCandidate }) {
 
 function ExperienceCard({ candidate }: { candidate: ShortListedCandidate }) {
   return (
-    <Card className="h-fit m-5">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Clock className="w-5 h-5" />
+    <Card className="shadow-lg rounded-2xl border border-gray-100 bg-white m-4">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
+          <Clock className="w-6 h-6 text-blue-500" />
           Experience
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-            <span className="font-medium text-sm">Years of Experience:</span>
-            <Badge variant="outline" className="ml-2">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl shadow">
+            <span className="font-semibold text-base text-gray-600">
+              Years of Experience:
+            </span>
+            <Badge variant="outline" className="ml-2 text-base">
               {candidate.experience?.years_found > 0
                 ? `${candidate.experience.years_found} years`
                 : "Not specified"}
             </Badge>
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-            <span className="font-medium text-sm">Experience Match:</span>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl shadow">
+            <span className="font-semibold text-base text-gray-600">
+              Experience Match:
+            </span>
             <MatchBadge match={candidate.experience?.match === "yes"} />
           </div>
         </div>
@@ -229,20 +240,21 @@ function SkillsCard({ skills }: { skills: string[] }) {
   if (!skills || skills.length === 0) return null;
 
   return (
-    <Card className="h-fit m-5">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Award className="w-5 h-5" />
-          Matched Skills ({skills.length})
+    <Card className="shadow-lg rounded-2xl border border-gray-100 bg-white m-4">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
+          <Award className="w-6 h-6 text-purple-500" />
+          Matched Skills{" "}
+          <span className="text-gray-500">({skills.length})</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         <div className="flex flex-wrap gap-2">
           {skills.map((skill, index) => (
             <Badge
               key={index}
               variant="secondary"
-              className="hover:bg-secondary/80 transition-colors"
+              className="hover:bg-purple-100 text-purple-700 bg-purple-50 border border-purple-200 rounded-lg px-3 py-1 text-base shadow"
             >
               {skill}
             </Badge>
@@ -261,52 +273,50 @@ function DataCard({
   scrollable = false,
 }: {
   title: string;
-  icon: any;
-  data: any[] | string | null;
+  icon: React.ElementType;
+  data: unknown[] | string | null;
   emptyMessage?: string;
   scrollable?: boolean;
 }) {
   if (!data || (Array.isArray(data) && data.length === 0)) return null;
 
   return (
-    <Card className="h-fit m-5">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Icon className="w-5 h-5" />
+    <Card className="shadow-lg rounded-2xl border border-gray-100 bg-white m-4">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-gray-800">
+          <Icon className="w-6 h-6 text-primary" />
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         {typeof data === "string" ? (
-          <div className="bg-muted/50 rounded-lg border">
+          <div className="bg-gray-50 rounded-xl border p-4">
             {scrollable ? (
-              <ScrollArea className="h-64 p-4">
-                <pre className="text-sm whitespace-pre-wrap font-mono">
+              <ScrollArea className="h-64">
+                <pre className="text-base whitespace-pre-wrap font-mono text-gray-700">
                   {data}
                 </pre>
               </ScrollArea>
             ) : (
-              <div className="p-4">
-                <pre className="text-sm whitespace-pre-wrap font-mono">
-                  {data}
-                </pre>
-              </div>
+              <pre className="text-base whitespace-pre-wrap font-mono text-gray-700">
+                {data}
+              </pre>
             )}
           </div>
         ) : Array.isArray(data) ? (
           <div className="space-y-3">
             {data.map((item, index) => (
-              <div key={index} className="bg-muted/50 p-4 rounded-lg border">
-                <pre className="text-sm whitespace-pre-wrap font-mono">
-                  {typeof item === "object"
+              <div key={index} className="bg-gray-50 p-4 rounded-xl border">
+                <pre className="text-base whitespace-pre-wrap font-mono text-gray-700">
+                  {typeof item === "object" && item !== null
                     ? JSON.stringify(item, null, 2)
-                    : item}
+                    : String(item)}
                 </pre>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-sm">{emptyMessage}</p>
+          <p className="text-gray-400 text-base">{emptyMessage}</p>
         )}
       </CardContent>
     </Card>
@@ -324,20 +334,34 @@ export function ViewCandidateDetailModal({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-2xl lg:max-w-4xl xl:max-w-6xl overflow-hidden">
-        <SheetHeader className="space-y-3 pb-4">
-          <SheetTitle className="flex items-center gap-2 text-xl">
-            <User className="w-6 h-6" />
-            {candidate.applicant_name}
-          </SheetTitle>
+      <SheetContent className="w-full sm:max-w-xl lg:max-w-xl xl:max-w-2xl overflow-hidden">
+        <SheetHeader className="space-y-3 pb-4 px-8 pt-8">
+          <div className="flex items-center justify-between">
+            <SheetTitle className="flex items-center gap-3 text-2xl font-bold text-gray-900">
+              <User className="w-8 h-8 text-primary" />
+              {candidate.applicant_name}
+            </SheetTitle>
+            <SheetTitle className="flex items-center font-bold mr-5 ">
+              <div className="text-center">
+                <div
+                  className={`${totalScoreClassName(
+                    candidate.match_score
+                  )} text-3xl font-bold `}
+                >
+                  {candidate.match_score}%
+                </div>
+                <p className="text-xs text-gray-800 ">Total Score</p>
+              </div>
+            </SheetTitle>
+          </div>
 
           {/* Action buttons */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3 mt-2">
             {onContactCandidate && (
               <Button
                 size="sm"
                 onClick={() => onContactCandidate(candidate)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 rounded-lg shadow bg-blue-600 text-white hover:bg-blue-700"
               >
                 <MessageSquare className="w-4 h-4" />
                 Contact
@@ -349,7 +373,7 @@ export function ViewCandidateDetailModal({
                 size="sm"
                 variant="outline"
                 onClick={() => onDownloadCV(candidate)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 rounded-lg shadow border-gray-300 text-gray-700 hover:bg-gray-100"
               >
                 <Download className="w-4 h-4" />
                 Download CV
@@ -361,7 +385,7 @@ export function ViewCandidateDetailModal({
                 size="sm"
                 variant="outline"
                 asChild
-                className="flex items-center gap-2 bg-transparent"
+                className="flex items-center gap-2 rounded-lg shadow border-gray-300 text-gray-700 hover:bg-gray-100 bg-transparent"
               >
                 <a href={`mailto:${candidate.applicant_email}`}>
                   <ExternalLink className="w-4 h-4" />
@@ -369,51 +393,50 @@ export function ViewCandidateDetailModal({
                 </a>
               </Button>
             )}
+            <MatchBadge match={candidate.job_matched} />
           </div>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-200px)] pr-4">
+        <ScrollArea className="h-[calc(100vh-200px)] pr-8 pl-8 pb-8">
           <PersonalInfoCard candidate={candidate} />
 
-          <div className="grid grid-cols-2 lg:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-6">
-              <DataCard
-                title="Jobs Matched"
-                icon={Briefcase}
-                data={candidate.jobs_matched}
-              />
+          <div className="gap-6">
+            <DataCard
+              title="Jobs Matched"
+              icon={Briefcase}
+              data={candidate.jobs_matched}
+            />
 
-              {candidate.matched_skills &&
-                candidate.matched_skills.length > 0 && (
-                  <SkillsCard skills={candidate.matched_skills} />
-                )}
-            </div>
+            {candidate.matched_skills &&
+              candidate.matched_skills.length > 0 && (
+                <SkillsCard skills={candidate.matched_skills} />
+              )}
 
-            {/* Right Column */}
-            <div className="space-y-6">
-              <ExperienceCard candidate={candidate} />
+            <ExperienceCard candidate={candidate} />
 
-              <DataCard
-                title="Bonus Matches"
-                icon={Star}
-                data={candidate.bonus_matches}
-              />
-              {/* <StatusCard candidate={candidate} /> */}
-            </div>
+            <DataCard
+              title="Bonus Matches"
+              icon={Star}
+              data={candidate.bonus_matches}
+            />
+
+            <MatchAnalysisCard candidate={candidate} />
+
+            <DataCard
+              title="CV Details"
+              icon={FileText}
+              data={candidate.cv_details}
+              scrollable={true}
+            />
           </div>
-          <MatchAnalysisCard candidate={candidate} />
-
-          <DataCard
-            title="CV Details"
-            icon={FileText}
-            data={candidate.cv_details}
-            scrollable={true}
-          />
         </ScrollArea>
 
-        <SheetFooter className="pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <SheetFooter className="pt-6 border-t px-8">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="rounded-lg shadow text-gray-700 border-gray-300 hover:bg-gray-100"
+          >
             Close
           </Button>
         </SheetFooter>

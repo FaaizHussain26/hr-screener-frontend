@@ -54,7 +54,7 @@ function InfoRow({
   label,
   value,
 }: {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   value: string;
 }) {
@@ -76,7 +76,7 @@ function EditableInfoRow({
   type = "text",
   placeholder,
 }: {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -115,7 +115,7 @@ function EditableTextareaRow({
   placeholder,
   rows = 3,
 }: {
-  icon: any;
+  icon: React.ElementType;
   label: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -346,7 +346,7 @@ function DataCard({
   fieldName,
 }: {
   title: string;
-  icon: any;
+  icon: React.ElementType;
   data: string | null;
   isEditing: boolean;
   formData: JobFormData;
