@@ -2,7 +2,6 @@ import { DashboardLayout } from "@/components/dashboard/dashboard-layout";
 import AuthMiddleware from "@/components/middleware/auth-middleware";
 import GuestMiddleware from "@/components/middleware/guest-middleware";
 import { Route, Routes } from "react-router";
-import { AnalyticsPage } from "./analytics";
 
 import { ForgotPassword } from "./forgot-password";
 import LoginPage from "./login";

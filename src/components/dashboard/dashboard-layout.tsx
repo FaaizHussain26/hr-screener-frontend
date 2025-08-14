@@ -3,7 +3,6 @@ import {
   Settings,
   Users,
   BarChart3,
-  Bell,
   ChevronDown,
   Briefcase,
   FileText,
@@ -11,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -193,11 +192,7 @@ export function DashboardLayout() {
               <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
             </div>
             <div className="flex items-center gap-2">
-              <div className="bg-sidebar-accent-foreground rounded-full flex items-center">
-                <Button variant="ghost" size="sm">
-                  <Bell fill="currentColor" className="size-5 text-card-box" />
-                </Button>
-              </div>
+              <div className="bg-sidebar-accent-foreground rounded-full flex items-center"></div>
               <div className="bg-sidebar-accent-foreground rounded-full flex items-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

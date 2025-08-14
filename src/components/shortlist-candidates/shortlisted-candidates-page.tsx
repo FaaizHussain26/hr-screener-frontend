@@ -379,7 +379,6 @@ export function ShortlistedCandidatesPage({
             </div>
           </div>
         )}
-
         {/* Search and Filter Controls */}
         {!disableFilters && (
           <div className="flex flex-col sm:flex-row gap-3">
@@ -388,7 +387,7 @@ export function ShortlistedCandidatesPage({
                 placeholder={shortlistCandidateData.searchBar}
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="pl-10 w-full sm:w-64"
+                className="pl-10 w-full sm:w-80"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
