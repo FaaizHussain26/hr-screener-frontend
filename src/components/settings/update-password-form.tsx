@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
+import { useUpdatePassword } from "@/api/hooks/useUpdatePassword";
 
 // Zod validation schema for password update
 const passwordSchema = z
@@ -53,30 +53,29 @@ export function UpdatePasswordForm() {
     },
   });
 
-  const onSubmit = async (data: PasswordFormData) => {
+  const { mutate } = useUpdatePassword();
+
+  const onSubmit = (data: PasswordFormData) => {
     setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      console.log("Password update data:", data);
-
-      toast("Password updated", {
-        description: "Your password has been successfully updated.",
-      });
-
-      // Reset form after successful submission
-      form.reset();
-    } catch {
-      toast("Error", {
-        description: "Failed to update password. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    mutate(
+      {
+        currentPassword: data.oldPassword,
+        newPassword: data.newPassword,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Password updated successfully");
+          form.reset();
+          setIsLoading(false);
+        },
+        onError: () => {
+          toast.error("Failed to update password. Please try again.");
+          setIsLoading(false);
+        },
+      }
+    );
+    console.log("Form submitted:", data);
   };
-
-  const navigate = useNavigate();
 
   return (
     <Form {...form}>
@@ -197,17 +196,6 @@ export function UpdatePasswordForm() {
         />
 
         <div className="flex justify-end space-x-4 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              form.reset();
-              navigate("/dashboard/home");
-            }}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
           <Button
             type="submit"
             disabled={isLoading}

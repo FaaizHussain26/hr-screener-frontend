@@ -21,7 +21,7 @@ export const analyzeResume = async ({
   formData.append("job_id", job_id);
 
   const response = await axiosInstance.post<ResumeAnalysisResponse>(
-    "/resume-analyzer/resume-analyzer",
+    "/resume-analyzer",
     formData,
     {
       headers: {

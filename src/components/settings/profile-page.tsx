@@ -94,10 +94,21 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
   const onSubmit = async (data: ProfileFormData) => {
     mutate(data, {
       onSuccess: (res) => {
-        console.log(res);
-        toast(res.message, {});
-        localStorage.setItem("user", JSON.stringify(res));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const result = res as any;
+        console.log(result);
+        toast(result.message, {});
+
+        if (result.token) {
+          localStorage.setItem("token", result.token);
+        }
+        if (result.refreshToken) {
+          localStorage.setItem("refreshToken", result.refreshToken);
+        }
+
+        localStorage.setItem("user", JSON.stringify(result.user || result));
         form.reset();
+        window.location.reload();
       },
       onError: () => {
         toast("Error Occur", {
@@ -106,7 +117,6 @@ export function ProfilePage({ initialData }: ProfilePageProps) {
       },
     });
   };
-
   const renderProfileContent = () => (
     <div className="space-y-6">
       {/* Personal Information Section */}
