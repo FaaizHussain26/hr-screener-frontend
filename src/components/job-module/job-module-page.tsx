@@ -25,7 +25,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
-import { jobModulePageData } from "@/utils/Content-Data/job-module-data";
 import { CreateJobModal } from "@/components/job-module/create-job-modal";
 import {
   useDeleteJob,
@@ -38,6 +37,19 @@ import { ViewJobModal } from "./modals/view-job-modal";
 import { RenderPagination } from "./pagination-job";
 
 const ITEMS_PER_PAGE = 7;
+
+
+const jobModulePageData = {
+  heading: "All Jobs",
+  subHeading: "Manage and monitor all your jobs",
+  button: "Create New Job",
+  card: {
+    cardOne: "Total Jobs",
+    cardTwo: "Total Active Jobs",
+    cardThree: "Experience",
+  },
+};
+
 
 // Skeleton Components
 function TableRowSkeleton() {
