@@ -41,7 +41,7 @@ export function DeleteConfirmationModal({
           <AlertDialogAction
             onClick={onClickConfirm}
             disabled={loading}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-black text-white hover:bg-destructive/90"
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Delete

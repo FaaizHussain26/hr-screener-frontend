@@ -430,6 +430,7 @@ export function ShortlistedCandidatesPage({
         onOpenChange={() => setCandidateToDelete(null)}
         onClickConfirm={handleDeleteClick}
         loading={isDeleting}
+        candidateId={candidateToDelete?._id || ""}
       />
 
       <ViewCandidateDetailModal

@@ -47,10 +47,10 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.9702 0.0067 53.45);
+  --background: oklch(98% 0 271.152);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
-  --card-back: oklch(0.9397 0.0119 51.32);
+  --card-back: oklch(98% 0 271.152);
   --card-foreground: oklch(0.145 0 0);
   --card-box: oklch(0.7927 0.171 70.67);
   --popover: oklch(1 0 0);

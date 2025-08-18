@@ -36,16 +36,6 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-background px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Open Jobs</h1>
-              <p className="text-muted-foreground">
-                Manage job postings and review applicants
-              </p>
-            </div>
-          </div>
-        </header>
 
         {/* Content */}
         <main className="flex-1 p-6 overflow-auto ">
@@ -56,7 +46,7 @@ const Dashboard = () => {
       {/* Applicant Detail Modal */}
       <div>
         <ApplicantDetailModal
-          job={selectedJob}
+          job={selectedJob as any}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
         />

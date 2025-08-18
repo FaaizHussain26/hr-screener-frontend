@@ -1,5 +1,6 @@
 "use client";
 
+import { useDeleteCandidate } from "@/api/hooks/useShortListedCandidates";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +17,7 @@ interface DeleteConfirmationModalProps {
   onOpenChange: (open: boolean) => void;
   onClickConfirm: () => void;
   loading: boolean;
+  candidateId: string;
 }
 
 export function DeleteConfirmationModal({
@@ -23,7 +25,13 @@ export function DeleteConfirmationModal({
   onOpenChange,
   onClickConfirm,
   loading,
+  candidateId,
 }: DeleteConfirmationModalProps) {
+  const deleteCandidateMutation = useDeleteCandidate();
+
+  const handleDelete = (candidateId: string) => {
+    deleteCandidateMutation.mutate(candidateId);
+  };
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -36,12 +44,20 @@ export function DeleteConfirmationModal({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
-            onClick={() => onOpenChange(false)}
+            onClick={() => {
+              onOpenChange(false);
+            }}
             disabled={loading}
           >
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onClickConfirm} disabled={loading}>
+          <AlertDialogAction
+            onClick={() => {
+              onClickConfirm();
+              handleDelete(candidateId);
+            }}
+            disabled={loading}
+          >
             {loading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>

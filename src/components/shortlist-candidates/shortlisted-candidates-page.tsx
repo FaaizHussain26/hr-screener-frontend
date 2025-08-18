@@ -15,12 +15,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { shortlistCandidateData } from "@/utils/Content-Data/shortlist-candidate-data";
-import { Eye, Filter, Search, Trash2, AlertCircle, Users } from "lucide-react";
+import {
+  Eye,
+  Filter,
+  Search,
+  Trash2,
+  AlertCircle,
+  Users,
+  UserX,
+  UserCheck,
+} from "lucide-react";
 import { useState } from "react";
 import { DeleteConfirmationModal } from "../modals/delete-confirmation";
 import { RenderPagination } from "./pagination";
 import { ViewCandidateDetailModal } from "./view-details";
 import { FilterPopover, FilterState } from "../modals/filter-modal";
+import DashboardCard from "../dashboard-card";
 
 export interface ShortListedCandidate {
   _id: string;
@@ -243,6 +253,29 @@ export function ShortlistedCandidatesPage({
     );
   };
 
+  const cardData = {
+    stats: [
+      {
+        title: "Total Candidates",
+        value: allCandidates.length,
+        icon: Users,
+      },
+      {
+        title: "Active",
+        value: allCandidates.filter((c: ShortListedCandidate) => !c.isDeleted)
+          .length,
+        icon: UserCheck,
+      },
+
+      {
+        title: "Inactive",
+        value: allCandidates.filter((c: ShortListedCandidate) => c.isDeleted)
+          .length,
+        icon: UserX,
+      },
+    ],
+  };
+
   const renderCandidateRows = (candidates: ShortListedCandidate[]) => {
     if (isLoading) {
       return <TableSkeleton />;
@@ -310,7 +343,9 @@ export function ShortlistedCandidatesPage({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setCandidateToDelete(candidate)}
+                    onClick={() => {
+                      setCandidateToDelete(candidate);
+                    }}
                     className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -343,17 +378,7 @@ export function ShortlistedCandidatesPage({
               </p>
             </div>
           </div>
-
-          // <div className="space-y-1">
-          //   <h2 className="text-3xl font-bold tracking-tight">
-          //     {shortlistCandidateData.heading}
-          //   </h2>
-          //   <p className="text-muted-foreground">
-          //     {shortlistCandidateData.subHeading}
-          //   </p>
-          // </div>
         )}
-
         {/* Search and Filter Controls */}
         {!disableFilters && (
           <div className="flex flex-col sm:flex-row gap-3">
@@ -362,7 +387,7 @@ export function ShortlistedCandidatesPage({
                 placeholder={shortlistCandidateData.searchBar}
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="pl-10 w-full sm:w-64"
+                className="pl-10 w-full sm:w-80"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
@@ -386,51 +411,14 @@ export function ShortlistedCandidatesPage({
       {/* Statistics Cards */}
       {!isLoading && allCandidates.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="text-sm font-medium">Total Candidates</p>
-                  <p className="text-2xl font-bold">{allCandidates.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-sm font-medium">Active</p>
-                  <p className="text-2xl font-bold">
-                    {
-                      allCandidates.filter(
-                        (c: ShortListedCandidate) => !c.isDeleted
-                      ).length
-                    }
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-red-600" />
-                <div>
-                  <p className="text-sm font-medium">Inactive</p>
-                  <p className="text-2xl font-bold">
-                    {
-                      allCandidates.filter(
-                        (c: ShortListedCandidate) => c.isDeleted
-                      ).length
-                    }
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {cardData.stats.map((stat, index) => (
+            <DashboardCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+            />
+          ))}
         </div>
       )}
 
@@ -480,6 +468,7 @@ export function ShortlistedCandidatesPage({
         onOpenChange={() => setCandidateToDelete(null)}
         onClickConfirm={handleDeleteClick}
         loading={isDeleting}
+        candidateId={candidateToDelete ? candidateToDelete._id : ""}
       />
 
       <ViewCandidateDetailModal
