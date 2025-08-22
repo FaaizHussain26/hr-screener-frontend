@@ -13,3 +13,9 @@ export const getProfile = async (): Promise<ProfileFormData> => {
   const response = await axiosInstance.get("/me");
   return response.data;
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const updatePassword = async (data: any): Promise<AuthResponse> => {
+  const response = await axiosInstance.put(`/auth/update-password`, data);
+  return response.data;
+};

@@ -10,7 +10,7 @@ import {
   Award,
   Star,
 } from "lucide-react";
-import { Progress } from "@radix-ui/react-progress";
+import * as Progress from "@radix-ui/react-progress";
 
 interface AnalysisData {
   finalPercentage: number;
@@ -121,29 +121,6 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ data }) => {
           </div>
         </div>
       </Card>
-      {/* Category Cards
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-        {categories.map((cat) => {
-          const section = data[cat.key];
-          const status = getStatus(section.score);
-          return (
-            <Card
-              key={cat.key}
-              className="p-5 flex flex-col items-center gap-1 shadow-md rounded-xl"
-            >
-              <span className="text-2xl font-bold text-gray-900">
-                {section.score * 10}
-              </span>
-              <p className="text-sm text-gray-600">{cat.label}</p>
-              <span
-                className={`mt-1 px-3 py-0.5 rounded-full text-xs font-medium ${status.color}`}
-              >
-                {status.text}
-              </span>
-            </Card>
-          );
-        })}
-      </div> */}
 
       {/* Skills Analysis */}
       {data.skillsAnalysis && data.skillsAnalysis.length > 0 && (
@@ -258,18 +235,23 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({ data }) => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Progress
+                  <Progress.Root
+                    className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200"
                     value={percentage}
-                    className="h-2 w-full bg-gray-200 rounded-full"
-                    style={{
-                      background:
-                        percentage >= 80
-                          ? "linear-gradient(90deg, #22c55e 0%, #16a34a 100%)"
-                          : percentage >= 60
-                          ? "linear-gradient(90deg, #facc15 0%, #eab308 100%)"
-                          : "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
-                    }}
-                  />
+                  >
+                    <Progress.Indicator
+                      className="h-full transition-all duration-300"
+                      style={{
+                        width: `${percentage}%`,
+                        background:
+                          percentage >= 80
+                            ? "linear-gradient(90deg, #22c55e 0%, #16a34a 100%)" // green
+                            : percentage >= 60
+                            ? "linear-gradient(90deg, #facc15 0%, #eab308 100%)" // yellow
+                            : "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)", // red
+                      }}
+                    />
+                  </Progress.Root>
                   <Badge
                     variant={
                       percentage >= 80

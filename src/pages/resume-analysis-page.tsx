@@ -12,7 +12,7 @@ export default function ResumeAnalysisPage() {
 
   return (
     <div className="p-6">
-      <AnalysisResults data={state} />
+      <AnalysisResults data={state.data} />
     </div>
   );
 }
