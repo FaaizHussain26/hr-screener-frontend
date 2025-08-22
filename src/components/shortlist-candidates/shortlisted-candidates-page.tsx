@@ -30,7 +30,7 @@ import { DeleteConfirmationModal } from "../modals/delete-confirmation";
 import { RenderPagination } from "./pagination";
 import { ViewCandidateDetailModal } from "./view-details";
 import { FilterPopover, FilterState } from "../modals/filter-modal";
-import DashboardCard from "../dashboard-card";
+import DashboardCard from "../dashboard/dashboard-card";
 
 export interface ShortListedCandidate {
   _id: string;

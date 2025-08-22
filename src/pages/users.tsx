@@ -24,7 +24,7 @@ import {
 import { usersData } from "@/utils/Content-Data/users-data";
 import { useUsers } from "@/api/hooks/useUsers";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
-import DashboardCard from "@/components/dashboard-card";
+import DashboardCard from "@/components/dashboard/dashboard-card";
 
 interface User {
   _id: string;
@@ -103,48 +103,6 @@ export function UsersPage() {
             icon={stat.icon}
           />
         ))}
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {usersData.cards.cardOne}
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-muted-foreground">&nbsp;</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {usersData.cards.cardTwo}
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {users.filter((u: User) => u.isActive).length}
-            </div>
-            <p className="text-xs text-muted-foreground">Currently online</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {usersData.cards.cardThree}
-            </CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {users.filter((u: User) => u.role === "admin").length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              System administrators
-            </p>
-          </CardContent>
-        </Card> */}
       </div>
 
       <Card>
